@@ -5,6 +5,8 @@ const RadiationSimulation = ({ energy }) => {
   const mountRef = useRef(null);
 
   useEffect(() => {
+    if (!mountRef.current) return;
+
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000);
     const renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -51,9 +53,10 @@ const RadiationSimulation = ({ energy }) => {
     scene.add(trail);
 
     let trailIndex = 0;
+    let animationFrameId;
 
     const animate = () => {
-      requestAnimationFrame(animate);
+      animationFrameId = requestAnimationFrame(animate);
 
       // Move particle towards atom
       if (particle.position.x < 1.5) {
@@ -88,14 +91,18 @@ const RadiationSimulation = ({ energy }) => {
     animate();
 
     return () => {
-      mountRef.current.removeChild(renderer.domElement);
+      cancelAnimationFrame(animationFrameId);
+      renderer.dispose();
+      if (mountRef.current) {
+        mountRef.current.removeChild(renderer.domElement);
+      }
     };
   }, [energy]);
 
   return (
     <div>
-      <div ref={mountRef} />
-      <p className="mt-2 text-sm text-gray-600">
+      <div ref={mountRef} style={{ width: '400px', height: '400px', margin: 'auto' }} />
+      <p className="mt-2 text-sm text-gray-600 text-center">
         {energy > 50 ? "Ionización ocurriendo" : "Energía insuficiente para ionización"}
       </p>
     </div>

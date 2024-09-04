@@ -38,7 +38,7 @@ const PhysicsOfXRays = () => {
         <h1 className="text-3xl font-extrabold text-gray-900 mb-8">Física de los Rayos X</h1>
         
         <Tabs defaultValue="composition" className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
             <TabsTrigger value="composition">Composición de la Materia</TabsTrigger>
             <TabsTrigger value="history">Historia del Modelo Atómico</TabsTrigger>
             <TabsTrigger value="radiation">Concepto y Tipos de Radiación</TabsTrigger>

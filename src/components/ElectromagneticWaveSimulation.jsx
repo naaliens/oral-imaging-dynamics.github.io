@@ -5,6 +5,8 @@ const ElectromagneticWaveSimulation = ({ frequency }) => {
   const mountRef = useRef(null);
 
   useEffect(() => {
+    if (!mountRef.current) return;
+
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000);
     const renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -69,8 +71,10 @@ const ElectromagneticWaveSimulation = ({ frequency }) => {
     camera.lookAt(0, 0, 0);
 
     let time = 0;
+    let animationFrameId;
+
     const animate = () => {
-      requestAnimationFrame(animate);
+      animationFrameId = requestAnimationFrame(animate);
 
       time += 0.016; // Assuming 60fps
 
@@ -96,17 +100,21 @@ const ElectromagneticWaveSimulation = ({ frequency }) => {
     animate();
 
     return () => {
-      mountRef.current.removeChild(renderer.domElement);
+      cancelAnimationFrame(animationFrameId);
+      renderer.dispose();
+      if (mountRef.current) {
+        mountRef.current.removeChild(renderer.domElement);
+      }
     };
   }, [frequency]);
 
   return (
     <div>
-      <div ref={mountRef} />
-      <p className="mt-2 text-sm text-gray-600">
+      <div ref={mountRef} style={{ width: '400px', height: '400px', margin: 'auto' }} />
+      <p className="mt-2 text-sm text-gray-600 text-center">
         Frecuencia: {frequency.toFixed(1)} Hz
       </p>
-      <p className="text-xs text-gray-500">
+      <p className="text-xs text-gray-500 text-center">
         E: Campo eléctrico (rojo), B: Campo magnético (azul)
       </p>
     </div>

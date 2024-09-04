@@ -7,6 +7,8 @@ const AtomSimulation = ({ onPartClick }) => {
   const [hoveredPart, setHoveredPart] = useState(null);
 
   useEffect(() => {
+    if (!mountRef.current) return;
+
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000);
     const renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -60,6 +62,7 @@ const AtomSimulation = ({ onPartClick }) => {
 
     let angle = 0;
     let animationFrameId;
+
     const animate = () => {
       animationFrameId = requestAnimationFrame(animate);
 
@@ -140,19 +143,19 @@ const AtomSimulation = ({ onPartClick }) => {
       cancelAnimationFrame(animationFrameId);
       renderer.domElement.removeEventListener('mousemove', onMouseMove);
       renderer.domElement.removeEventListener('click', onClick);
+      controls.dispose();
+      renderer.dispose();
       if (mountRef.current) {
         mountRef.current.removeChild(renderer.domElement);
       }
-      renderer.dispose();
-      controls.dispose();
     };
   }, [onPartClick]);
 
   return (
     <div>
-      <div ref={mountRef} />
+      <div ref={mountRef} style={{ width: '400px', height: '400px', margin: 'auto' }} />
       {hoveredPart && (
-        <div className="mt-2 text-sm text-gray-600">
+        <div className="mt-2 text-sm text-gray-600 text-center">
           Haz clic en el {hoveredPart} para más información
         </div>
       )}
