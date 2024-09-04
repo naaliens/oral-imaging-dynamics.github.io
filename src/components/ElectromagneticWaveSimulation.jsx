@@ -7,7 +7,7 @@ const ElectromagneticWaveSimulation = ({ frequency }) => {
   useEffect(() => {
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000);
-    const renderer = new THREE.WebGLRenderer();
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
 
     renderer.setSize(400, 400);
     mountRef.current.appendChild(renderer.domElement);
@@ -43,6 +43,26 @@ const ElectromagneticWaveSimulation = ({ frequency }) => {
     const magneticFieldMaterial = new THREE.LineBasicMaterial({ color: 0x0000ff });
     const magneticFieldLine = new THREE.Line(magneticFieldGeometry, magneticFieldMaterial);
     scene.add(magneticFieldLine);
+
+    // Add axis labels
+    const addLabel = (text, position) => {
+      const canvas = document.createElement('canvas');
+      const context = canvas.getContext('2d');
+      context.font = 'Bold 20px Arial';
+      context.fillStyle = 'white';
+      context.fillText(text, 0, 20);
+      
+      const texture = new THREE.CanvasTexture(canvas);
+      const spriteMaterial = new THREE.SpriteMaterial({ map: texture });
+      const sprite = new THREE.Sprite(spriteMaterial);
+      sprite.position.copy(position);
+      sprite.scale.set(0.5, 0.5, 1);
+      scene.add(sprite);
+    };
+
+    addLabel('E', new THREE.Vector3(0, 1, 0));
+    addLabel('B', new THREE.Vector3(0, 0, 1));
+    addLabel('x', new THREE.Vector3(5, 0, 0));
 
     camera.position.y = 2;
     camera.position.z = 5;
@@ -80,7 +100,17 @@ const ElectromagneticWaveSimulation = ({ frequency }) => {
     };
   }, [frequency]);
 
-  return <div ref={mountRef} />;
+  return (
+    <div>
+      <div ref={mountRef} />
+      <p className="mt-2 text-sm text-gray-600">
+        Frecuencia: {frequency.toFixed(1)} Hz
+      </p>
+      <p className="text-xs text-gray-500">
+        E: Campo eléctrico (rojo), B: Campo magnético (azul)
+      </p>
+    </div>
+  );
 };
 
 export default ElectromagneticWaveSimulation;

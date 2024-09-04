@@ -1,51 +1,73 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 
 const AtomSimulation = ({ onPartClick }) => {
   const mountRef = useRef(null);
+  const [hoveredPart, setHoveredPart] = useState(null);
 
   useEffect(() => {
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000);
-    const renderer = new THREE.WebGLRenderer();
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
 
     renderer.setSize(400, 400);
     mountRef.current.appendChild(renderer.domElement);
 
     // Nucleus
     const nucleusGeometry = new THREE.SphereGeometry(0.5, 32, 32);
-    const nucleusMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+    const nucleusMaterial = new THREE.MeshPhongMaterial({ color: 0xff0000 });
     const nucleus = new THREE.Mesh(nucleusGeometry, nucleusMaterial);
     scene.add(nucleus);
 
-    // Electron
+    // Electrons
     const electronGeometry = new THREE.SphereGeometry(0.1, 32, 32);
-    const electronMaterial = new THREE.MeshBasicMaterial({ color: 0x0000ff });
-    const electron = new THREE.Mesh(electronGeometry, electronMaterial);
-    scene.add(electron);
+    const electronMaterial = new THREE.MeshPhongMaterial({ color: 0x0000ff });
+    const electrons = [];
+    const orbits = [];
 
-    // Electron orbit
-    const orbitRadius = 2;
-    const orbitCurve = new THREE.EllipseCurve(0, 0, orbitRadius, orbitRadius);
-    const orbitPoints = orbitCurve.getPoints(50);
-    const orbitGeometry = new THREE.BufferGeometry().setFromPoints(orbitPoints);
-    const orbitMaterial = new THREE.LineBasicMaterial({ color: 0xffffff });
-    const orbitEllipse = new THREE.Line(orbitGeometry, orbitMaterial);
-    orbitEllipse.rotation.x = Math.PI / 2;
-    scene.add(orbitEllipse);
+    for (let i = 0; i < 3; i++) {
+      const electron = new THREE.Mesh(electronGeometry, electronMaterial);
+      const orbitRadius = 1 + i * 0.5;
+      const orbit = new THREE.EllipseCurve(0, 0, orbitRadius, orbitRadius);
+      const orbitPoints = orbit.getPoints(50);
+      const orbitGeometry = new THREE.BufferGeometry().setFromPoints(orbitPoints);
+      const orbitMaterial = new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.5 });
+      const orbitEllipse = new THREE.Line(orbitGeometry, orbitMaterial);
+      
+      electron.userData = { type: 'electron', orbitRadius };
+      orbitEllipse.rotation.x = Math.PI / 2;
+      scene.add(electron);
+      scene.add(orbitEllipse);
+      electrons.push(electron);
+      orbits.push(orbitEllipse);
+    }
 
     camera.position.z = 5;
 
     const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.25;
+    controls.enableZoom = true;
+
+    // Lighting
+    const ambientLight = new THREE.AmbientLight(0x404040);
+    scene.add(ambientLight);
+
+    const pointLight = new THREE.PointLight(0xffffff, 1);
+    pointLight.position.set(5, 5, 5);
+    scene.add(pointLight);
 
     let angle = 0;
     const animate = () => {
       requestAnimationFrame(animate);
 
-      angle += 0.05;
-      electron.position.x = Math.cos(angle) * orbitRadius;
-      electron.position.z = Math.sin(angle) * orbitRadius;
+      angle += 0.01;
+      electrons.forEach((electron, index) => {
+        const radius = electron.userData.orbitRadius;
+        electron.position.x = Math.cos(angle + index * Math.PI * 2 / 3) * radius;
+        electron.position.z = Math.sin(angle + index * Math.PI * 2 / 3) * radius;
+      });
 
       controls.update();
       renderer.render(scene, camera);
@@ -56,14 +78,33 @@ const AtomSimulation = ({ onPartClick }) => {
     const raycaster = new THREE.Raycaster();
     const mouse = new THREE.Vector2();
 
-    const onMouseClick = (event) => {
+    const onMouseMove = (event) => {
       const rect = renderer.domElement.getBoundingClientRect();
       mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
       mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
 
       raycaster.setFromCamera(mouse, camera);
 
-      const intersects = raycaster.intersectObjects([nucleus, electron]);
+      const intersects = raycaster.intersectObjects([nucleus, ...electrons]);
+
+      if (intersects.length > 0) {
+        const intersectedObject = intersects[0].object;
+        setHoveredPart(intersectedObject === nucleus ? 'nucleus' : 'electron');
+        document.body.style.cursor = 'pointer';
+      } else {
+        setHoveredPart(null);
+        document.body.style.cursor = 'default';
+      }
+    };
+
+    const onClick = (event) => {
+      const rect = renderer.domElement.getBoundingClientRect();
+      mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+      mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+
+      raycaster.setFromCamera(mouse, camera);
+
+      const intersects = raycaster.intersectObjects([nucleus, ...electrons]);
 
       if (intersects.length > 0) {
         const clickedObject = intersects[0].object;
@@ -77,7 +118,7 @@ const AtomSimulation = ({ onPartClick }) => {
               'Determina las propiedades químicas del elemento'
             ]
           });
-        } else if (clickedObject === electron) {
+        } else if (electrons.includes(clickedObject)) {
           onPartClick({
             name: 'Electrón',
             description: 'Partícula subatómica con carga negativa que orbita el núcleo.',
@@ -91,15 +132,26 @@ const AtomSimulation = ({ onPartClick }) => {
       }
     };
 
-    renderer.domElement.addEventListener('click', onMouseClick);
+    renderer.domElement.addEventListener('mousemove', onMouseMove);
+    renderer.domElement.addEventListener('click', onClick);
 
     return () => {
-      renderer.domElement.removeEventListener('click', onMouseClick);
+      renderer.domElement.removeEventListener('mousemove', onMouseMove);
+      renderer.domElement.removeEventListener('click', onClick);
       mountRef.current.removeChild(renderer.domElement);
     };
   }, [onPartClick]);
 
-  return <div ref={mountRef} />;
+  return (
+    <div>
+      <div ref={mountRef} />
+      {hoveredPart && (
+        <div className="mt-2 text-sm text-gray-600">
+          Haz clic en el {hoveredPart} para más información
+        </div>
+      )}
+    </div>
+  );
 };
 
 export default AtomSimulation;
