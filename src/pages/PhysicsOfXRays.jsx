@@ -1,9 +1,31 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { AtomIcon, HistoryIcon, ZapIcon, RadioIcon } from 'lucide-react';
+import { Button } from "@/components/ui/button";
+import { Slider } from "@/components/ui/slider";
+import AtomSimulation from '../components/AtomSimulation';
+import AtomicModelTimeline from '../components/AtomicModelTimeline';
+import RadiationSimulation from '../components/RadiationSimulation';
+import ElectromagneticWaveSimulation from '../components/ElectromagneticWaveSimulation';
 
 const PhysicsOfXRays = () => {
+  const [selectedAtomPart, setSelectedAtomPart] = useState(null);
+  const [ionizationEnergy, setIonizationEnergy] = useState(0);
+  const [waveFrequency, setWaveFrequency] = useState(1);
+
+  const handleAtomPartClick = (part) => {
+    setSelectedAtomPart(part);
+  };
+
+  const handleIonizationEnergyChange = (value) => {
+    setIonizationEnergy(value[0]);
+  };
+
+  const handleWaveFrequencyChange = (value) => {
+    setWaveFrequency(value[0]);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
@@ -29,10 +51,28 @@ const PhysicsOfXRays = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <p className="mb-4">
-                  La materia está compuesta por átomos, que a su vez constan de un núcleo (protones y neutrones) rodeado por electrones. La energía de enlace del electrón es crucial para entender la ionización y la producción de rayos X.
-                </p>
-                {/* Aquí se podría agregar un componente de diagrama interactivo del átomo */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <p className="mb-4">
+                      La materia está compuesta por átomos, que a su vez constan de un núcleo (protones y neutrones) rodeado por electrones. La energía de enlace del electrón es crucial para entender la ionización y la producción de rayos X.
+                    </p>
+                    <AtomSimulation onPartClick={handleAtomPartClick} />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold mb-2">Información del componente seleccionado:</h3>
+                    {selectedAtomPart && (
+                      <div className="bg-white p-4 rounded-lg shadow">
+                        <h4 className="font-bold">{selectedAtomPart.name}</h4>
+                        <p>{selectedAtomPart.description}</p>
+                        <ul className="list-disc pl-5 mt-2">
+                          {selectedAtomPart.properties.map((prop, index) => (
+                            <li key={index}>{prop}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
@@ -52,7 +92,7 @@ const PhysicsOfXRays = () => {
                 <p className="mb-4">
                   Desde el concepto de Demócrito hasta el modelo cuántico actual, la comprensión del átomo ha evolucionado significativamente, influyendo en nuestro entendimiento de los rayos X.
                 </p>
-                {/* Aquí se podría agregar una línea de tiempo interactiva */}
+                <AtomicModelTimeline />
               </CardContent>
             </Card>
           </TabsContent>
@@ -72,7 +112,18 @@ const PhysicsOfXRays = () => {
                 <p className="mb-4">
                   La radiación se clasifica en ionizante y no ionizante, dependiendo de su capacidad para ionizar átomos. Los rayos X son un tipo de radiación ionizante utilizada en imagenología dental.
                 </p>
-                {/* Aquí se podría agregar una tabla comparativa o gráfico interactivo */}
+                <div className="mb-4">
+                  <h3 className="text-lg font-semibold mb-2">Simulación de Ionización:</h3>
+                  <Slider
+                    value={[ionizationEnergy]}
+                    onValueChange={handleIonizationEnergyChange}
+                    max={100}
+                    step={1}
+                    className="mb-2"
+                  />
+                  <p>Energía de ionización: {ionizationEnergy} eV</p>
+                </div>
+                <RadiationSimulation energy={ionizationEnergy} />
               </CardContent>
             </Card>
           </TabsContent>
@@ -92,7 +143,19 @@ const PhysicsOfXRays = () => {
                 <p className="mb-4">
                   La radiación electromagnética incluye rayos X y gamma, mientras que la radiación particulada comprende partículas alfa y beta. Cada tipo tiene características y efectos ionizantes únicos.
                 </p>
-                {/* Aquí se podría agregar una animación interactiva sobre los tipos de radiación */}
+                <div className="mb-4">
+                  <h3 className="text-lg font-semibold mb-2">Simulación de Onda Electromagnética:</h3>
+                  <Slider
+                    value={[waveFrequency]}
+                    onValueChange={handleWaveFrequencyChange}
+                    min={1}
+                    max={10}
+                    step={0.1}
+                    className="mb-2"
+                  />
+                  <p>Frecuencia: {waveFrequency.toFixed(1)} Hz</p>
+                </div>
+                <ElectromagneticWaveSimulation frequency={waveFrequency} />
               </CardContent>
             </Card>
           </TabsContent>
