@@ -1,4 +1,4 @@
-import { HomeIcon, AtomIcon, RadioIcon, BookOpenIcon } from "lucide-react";
+import { HomeIcon, AtomIcon, RadioIcon, BookOpenIcon, BookmarkIcon } from "lucide-react";
 import Home from "./pages/Home";
 import PhysicsOfXRays from "./pages/PhysicsOfXRays";
 import XRayMachine from "./pages/XRayMachine";
@@ -33,7 +33,7 @@ export const navItems = [
   {
     title: "Recursos Adicionales",
     to: "/resources",
-    icon: <BookOpenIcon className="h-4 w-4" />,
+    icon: <BookmarkIcon className="h-4 w-4" />,
     page: <AdditionalResources />,
   },
 ];
