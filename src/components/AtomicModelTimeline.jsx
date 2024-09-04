@@ -1,13 +1,10 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { VerticalTimeline, VerticalTimelineElement } from 'react-vertical-timeline-component';
 import 'react-vertical-timeline-component/style.min.css';
 import { AtomIcon } from 'lucide-react';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 
-const AtomicModelTimeline = () => {
-  const [selectedModel, setSelectedModel] = useState(null);
-
+const AtomicModelTimeline = ({ onModelClick }) => {
   const timelineElements = [
     {
       title: "Modelo de Dalton",
@@ -52,42 +49,28 @@ const AtomicModelTimeline = () => {
   ];
 
   return (
-    <div>
-      <VerticalTimeline>
-        {timelineElements.map((element, index) => (
-          <VerticalTimelineElement
-            key={index}
-            className="vertical-timeline-element--work"
-            contentStyle={{ background: 'rgb(33, 150, 243)', color: '#fff' }}
-            contentArrowStyle={{ borderRight: '7px solid  rgb(33, 150, 243)' }}
-            date={element.date}
-            iconStyle={{ background: 'rgb(33, 150, 243)', color: '#fff' }}
-            icon={element.icon}
+    <VerticalTimeline>
+      {timelineElements.map((element, index) => (
+        <VerticalTimelineElement
+          key={index}
+          className="vertical-timeline-element--work"
+          contentStyle={{ background: 'rgb(33, 150, 243)', color: '#fff' }}
+          contentArrowStyle={{ borderRight: '7px solid  rgb(33, 150, 243)' }}
+          date={element.date}
+          iconStyle={{ background: 'rgb(33, 150, 243)', color: '#fff' }}
+          icon={element.icon}
+        >
+          <h3 className="vertical-timeline-element-title">{element.title}</h3>
+          <p>{element.description}</p>
+          <Button 
+            onClick={() => onModelClick(element)} 
+            className="mt-2 bg-white text-blue-500 hover:bg-blue-100"
           >
-            <h3 className="vertical-timeline-element-title">{element.title}</h3>
-            <p>{element.description}</p>
-            <Button 
-              onClick={() => setSelectedModel(element)} 
-              className="mt-2 bg-white text-blue-500 hover:bg-blue-100"
-            >
-              Más detalles
-            </Button>
-          </VerticalTimelineElement>
-        ))}
-      </VerticalTimeline>
-
-      <Dialog open={!!selectedModel} onOpenChange={() => setSelectedModel(null)}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{selectedModel?.title}</DialogTitle>
-            <DialogDescription>
-              <p className="mt-2">{selectedModel?.details}</p>
-              <img src={selectedModel?.image} alt={selectedModel?.title} className="mt-4 w-full rounded-lg" />
-            </DialogDescription>
-          </DialogHeader>
-        </DialogContent>
-      </Dialog>
-    </div>
+            Más detalles
+          </Button>
+        </VerticalTimelineElement>
+      ))}
+    </VerticalTimeline>
   );
 };
 

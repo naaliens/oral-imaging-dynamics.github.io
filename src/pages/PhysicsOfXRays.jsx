@@ -8,11 +8,13 @@ import AtomSimulation from '../components/AtomSimulation';
 import AtomicModelTimeline from '../components/AtomicModelTimeline';
 import RadiationSimulation from '../components/RadiationSimulation';
 import ElectromagneticWaveSimulation from '../components/ElectromagneticWaveSimulation';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
 const PhysicsOfXRays = () => {
   const [selectedAtomPart, setSelectedAtomPart] = useState(null);
   const [ionizationEnergy, setIonizationEnergy] = useState(0);
   const [waveFrequency, setWaveFrequency] = useState(1);
+  const [selectedModel, setSelectedModel] = useState(null);
 
   const handleAtomPartClick = (part) => {
     setSelectedAtomPart(part);
@@ -24,6 +26,10 @@ const PhysicsOfXRays = () => {
 
   const handleWaveFrequencyChange = (value) => {
     setWaveFrequency(value[0]);
+  };
+
+  const handleModelClick = (model) => {
+    setSelectedModel(model);
   };
 
   return (
@@ -92,7 +98,18 @@ const PhysicsOfXRays = () => {
                 <p className="mb-4">
                   Desde el concepto de Demócrito hasta el modelo cuántico actual, la comprensión del átomo ha evolucionado significativamente, influyendo en nuestro entendimiento de los rayos X.
                 </p>
-                <AtomicModelTimeline />
+                <AtomicModelTimeline onModelClick={handleModelClick} />
+                <Dialog open={!!selectedModel} onOpenChange={() => setSelectedModel(null)}>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>{selectedModel?.title}</DialogTitle>
+                      <DialogDescription>
+                        <p className="mt-2">{selectedModel?.details}</p>
+                        <img src={selectedModel?.image} alt={selectedModel?.title} className="mt-4 w-full rounded-lg" />
+                      </DialogDescription>
+                    </DialogHeader>
+                  </DialogContent>
+                </Dialog>
               </CardContent>
             </Card>
           </TabsContent>
