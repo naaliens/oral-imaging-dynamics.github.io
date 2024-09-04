@@ -12,7 +12,12 @@ const AtomicModelTimeline = ({ onModelClick }) => {
       description: "Átomos como esferas sólidas indivisibles.",
       icon: <AtomIcon />,
       details: "John Dalton propuso que la materia está compuesta por partículas pequeñas e indivisibles llamadas átomos. Este modelo, aunque simple, sentó las bases para el desarrollo de la teoría atómica moderna.",
-      image: "https://example.com/dalton-model.jpg"
+      image: "/images/dalton_model.jpg",
+      imageCaption: "Representación del modelo atómico de Dalton",
+      radiologyImplications: [
+        "Estableció la base para entender la materia a nivel atómico.",
+        "Aunque no explica la producción de rayos X, fue el primer paso hacia la comprensión de la estructura atómica."
+      ]
     },
     {
       title: "Modelo de Thomson",
@@ -20,7 +25,12 @@ const AtomicModelTimeline = ({ onModelClick }) => {
       description: "Modelo de 'pudín de pasas', electrones incrustados en una masa positiva.",
       icon: <AtomIcon />,
       details: "J.J. Thomson descubrió el electrón y propuso un modelo donde los electrones (las 'pasas') estaban incrustados en una 'masa' de carga positiva. Este modelo explicaba la neutralidad eléctrica de los átomos.",
-      image: "https://example.com/thomson-model.jpg"
+      image: "/images/thomson_model.jpg",
+      imageCaption: "Ilustración del modelo de 'pudín de pasas' de Thomson",
+      radiologyImplications: [
+        "Introdujo el concepto de electrones, fundamentales en la producción e interacción de rayos X.",
+        "Ayudó a explicar la ionización, crucial para entender los efectos de los rayos X en la materia."
+      ]
     },
     {
       title: "Modelo de Rutherford",
@@ -28,7 +38,12 @@ const AtomicModelTimeline = ({ onModelClick }) => {
       description: "Átomo con un núcleo denso y positivo, rodeado de electrones.",
       icon: <AtomIcon />,
       details: "Ernest Rutherford realizó su famoso experimento de dispersión de partículas alfa, que llevó al descubrimiento del núcleo atómico. Su modelo propuso un átomo mayormente vacío con un núcleo pequeño y denso.",
-      image: "https://example.com/rutherford-model.jpg"
+      image: "/images/rutherford_model.jpg",
+      imageCaption: "Modelo atómico de Rutherford mostrando el núcleo y los electrones",
+      radiologyImplications: [
+        "La idea de un núcleo denso ayudó a explicar la penetración de los rayos X en la materia.",
+        "Sentó las bases para entender la interacción de la radiación con diferentes partes del átomo."
+      ]
     },
     {
       title: "Modelo de Bohr",
@@ -36,7 +51,12 @@ const AtomicModelTimeline = ({ onModelClick }) => {
       description: "Electrones en órbitas fijas alrededor del núcleo.",
       icon: <AtomIcon />,
       details: "Niels Bohr propuso que los electrones orbitan el núcleo en niveles de energía específicos. Este modelo explicaba el espectro de emisión del hidrógeno y sentó las bases para la mecánica cuántica.",
-      image: "https://example.com/bohr-model.jpg"
+      image: "/images/bohr_model.jpg",
+      imageCaption: "Representación del modelo atómico de Bohr con niveles de energía",
+      radiologyImplications: [
+        "Explicó cómo los electrones pueden absorber y emitir energía en forma de fotones, fundamental para entender la producción de rayos X.",
+        "Introdujo el concepto de niveles de energía, crucial para comprender la fluorescencia de rayos X."
+      ]
     },
     {
       title: "Modelo Cuántico",
@@ -44,7 +64,12 @@ const AtomicModelTimeline = ({ onModelClick }) => {
       description: "Electrones en orbitales probabilísticos, principio de incertidumbre.",
       icon: <AtomIcon />,
       details: "El modelo cuántico, desarrollado por varios científicos, describe los electrones como ondas de probabilidad en orbitales alrededor del núcleo. Este modelo es el más preciso hasta la fecha y explica fenómenos complejos como el enlace químico.",
-      image: "https://example.com/quantum-model.jpg"
+      image: "/images/quantum_model.jpg",
+      imageCaption: "Visualización de orbitales atómicos en el modelo cuántico",
+      radiologyImplications: [
+        "Proporciona la comprensión más precisa de cómo los rayos X interactúan con los electrones a nivel atómico.",
+        "Explica fenómenos complejos como el efecto fotoeléctrico y la dispersión Compton, cruciales en radiología."
+      ]
     },
   ];
 
