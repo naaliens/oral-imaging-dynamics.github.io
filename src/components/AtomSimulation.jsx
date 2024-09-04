@@ -59,8 +59,9 @@ const AtomSimulation = ({ onPartClick }) => {
     scene.add(pointLight);
 
     let angle = 0;
+    let animationFrameId;
     const animate = () => {
-      requestAnimationFrame(animate);
+      animationFrameId = requestAnimationFrame(animate);
 
       angle += 0.01;
       electrons.forEach((electron, index) => {
@@ -136,9 +137,14 @@ const AtomSimulation = ({ onPartClick }) => {
     renderer.domElement.addEventListener('click', onClick);
 
     return () => {
+      cancelAnimationFrame(animationFrameId);
       renderer.domElement.removeEventListener('mousemove', onMouseMove);
       renderer.domElement.removeEventListener('click', onClick);
-      mountRef.current.removeChild(renderer.domElement);
+      if (mountRef.current) {
+        mountRef.current.removeChild(renderer.domElement);
+      }
+      renderer.dispose();
+      controls.dispose();
     };
   }, [onPartClick]);
 
