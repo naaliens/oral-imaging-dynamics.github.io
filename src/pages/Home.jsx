@@ -11,7 +11,6 @@ const Home = () => {
   const [fotonEnergia, setFotonEnergia] = useState(112);
   const [fotonAngulo, setFotonAngulo] = useState(0);
   const [material, setMaterial] = useState('hueso_tejido');
-  const [radiacionTipo, setRadiacionTipo] = useState('beta');
   const [tejidoGrosor, setTejidoGrosor] = useState(8.9);
   const [maquinaKvp, setMaquinaKvp] = useState(70);
   const [maquinaMa, setMaquinaMa] = useState(10);
@@ -22,58 +21,96 @@ const Home = () => {
     return energia * Math.cos(angulo * Math.PI / 180);
   };
 
-  const calcularLET = (tipo, grosor) => {
-    const letValores = { alfa: 100, beta: 20, gamma: 5 };
-    return letValores[tipo] / grosor;
-  };
-
   const calcularCalidadImagen = (kvp, ma, tiempo) => {
     return (kvp * ma * tiempo) / 10000;
   };
 
   useEffect(() => {
-    // Simular la generación de una imagen basada en los parámetros
-    const canvas = document.createElement('canvas');
-    canvas.width = 200;
-    canvas.height = 200;
-    const ctx = canvas.getContext('2d');
-    
-    // Lógica simplificada para generar una imagen simulada
-    ctx.fillStyle = material === 'hueso' ? 'white' : 'gray';
-    ctx.fillRect(0, 0, 200, 200);
-    
-    if (material.includes('brackets') || material.includes('implantes')) {
-      ctx.fillStyle = 'black';
-      ctx.fillRect(50, 50, 100, 100);
-    }
-    
-    if (material.includes('endodoncia')) {
-      ctx.strokeStyle = 'black';
-      ctx.beginPath();
-      ctx.moveTo(100, 0);
-      ctx.lineTo(100, 200);
-      ctx.stroke();
-    }
-    
-    setImagenSimulada(canvas.toDataURL());
+    const generarImagenSimulada = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = 200;
+      canvas.height = 200;
+      const ctx = canvas.getContext('2d');
+      
+      // Simular diferentes materiales
+      switch(material) {
+        case 'hueso_tejido':
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+          ctx.fillRect(0, 0, 200, 200);
+          ctx.fillStyle = 'rgba(100, 100, 100, 0.5)';
+          ctx.fillRect(50, 50, 100, 100);
+          break;
+        case 'hueso':
+          ctx.fillStyle = 'white';
+          ctx.fillRect(0, 0, 200, 200);
+          break;
+        case 'tejido_blando':
+          ctx.fillStyle = 'rgba(200, 200, 200, 0.5)';
+          ctx.fillRect(0, 0, 200, 200);
+          break;
+        case 'diente_brackets':
+          ctx.fillStyle = 'white';
+          ctx.fillRect(0, 0, 200, 200);
+          ctx.fillStyle = 'black';
+          ctx.fillRect(80, 80, 40, 40);
+          break;
+        case 'diente_implantes':
+          ctx.fillStyle = 'white';
+          ctx.fillRect(0, 0, 200, 200);
+          ctx.fillStyle = 'rgba(50, 50, 50, 1)';
+          ctx.fillRect(90, 50, 20, 100);
+          break;
+        case 'diente_endodoncia':
+          ctx.fillStyle = 'white';
+          ctx.fillRect(0, 0, 200, 200);
+          ctx.strokeStyle = 'black';
+          ctx.beginPath();
+          ctx.moveTo(100, 0);
+          ctx.lineTo(100, 200);
+          ctx.stroke();
+          break;
+      }
+      
+      // Aplicar efectos basados en parámetros
+      const imageData = ctx.getImageData(0, 0, 200, 200);
+      const data = imageData.data;
+      for (let i = 0; i < data.length; i += 4) {
+        // Simular efecto de energía del fotón
+        const energyFactor = fotonEnergia / 112;
+        data[i] *= energyFactor;
+        data[i+1] *= energyFactor;
+        data[i+2] *= energyFactor;
+        
+        // Simular efecto de grosor del tejido
+        const thicknessFactor = 8.9 / tejidoGrosor;
+        data[i] *= thicknessFactor;
+        data[i+1] *= thicknessFactor;
+        data[i+2] *= thicknessFactor;
+        
+        // Simular efecto de kVp, mA y tiempo de exposición
+        const exposureFactor = (maquinaKvp * maquinaMa * maquinaTiempo) / (70 * 10 * 0.1);
+        data[i] = Math.min(255, data[i] * exposureFactor);
+        data[i+1] = Math.min(255, data[i+1] * exposureFactor);
+        data[i+2] = Math.min(255, data[i+2] * exposureFactor);
+      }
+      ctx.putImageData(imageData, 0, 0);
+      
+      setImagenSimulada(canvas.toDataURL());
+    };
+
+    generarImagenSimulada();
   }, [material, fotonEnergia, fotonAngulo, tejidoGrosor, maquinaKvp, maquinaMa, maquinaTiempo]);
 
   return (
     <div className="min-h-screen bg-gray-50">
       <main className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-extrabold text-gray-900 sm:text-5xl md:text-6xl">
-            Dinámicas de la Imagenología Oral
-          </h1>
-          <p className="mt-3 max-w-md mx-auto text-base text-gray-500 sm:text-lg md:mt-5 md:text-xl md:max-w-3xl">
-            Explorando los fundamentos y la tecnología de los rayos X en la odontología
-          </p>
-        </div>
+        <h1 className="text-4xl font-extrabold text-gray-900 sm:text-5xl md:text-6xl mb-8 text-center">
+          Dinámicas de la Imagenología Oral
+        </h1>
 
         <Tabs defaultValue="simulations" className="w-full mb-12">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="simulations">Simulaciones Interactivas</TabsTrigger>
-            <TabsTrigger value="quiz">Quiz Interactivo</TabsTrigger>
             <TabsTrigger value="bibliography">Bibliografía</TabsTrigger>
           </TabsList>
 
@@ -145,23 +182,10 @@ const Home = () => {
                     </div>
                     <div className="mt-4">
                       <p>Energía dispersada: {calcularDisperso(fotonEnergia, fotonAngulo).toFixed(2)} keV</p>
-                      <p>LET: {calcularLET(radiacionTipo, tejidoGrosor).toFixed(2)}</p>
                       <p>Calidad de imagen: {calcularCalidadImagen(maquinaKvp, maquinaMa, maquinaTiempo).toFixed(2)}%</p>
                     </div>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="quiz">
-            <Card>
-              <CardHeader>
-                <CardTitle>Quiz Interactivo</CardTitle>
-                <CardDescription>Pon a prueba tus conocimientos sobre imagenología oral</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p>Aquí se implementará un quiz interactivo basado en la información proporcionada.</p>
               </CardContent>
             </Card>
           </TabsContent>
@@ -184,59 +208,6 @@ const Home = () => {
             </Card>
           </TabsContent>
         </Tabs>
-
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 mb-12">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <AtomIcon className="mr-2 h-4 w-4" />
-                Física de los Rayos X
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <CardDescription>
-                Explora los fundamentos físicos detrás de los rayos X y cómo se aplican en la imagenología dental.
-              </CardDescription>
-              <Button asChild className="mt-4">
-                <Link to="/physics">Explorar</Link>
-              </Button>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <RadioIcon className="mr-2 h-4 w-4" />
-                La Máquina de Rayos X
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <CardDescription>
-                Conoce los componentes y el funcionamiento de las máquinas de rayos X utilizadas en odontología.
-              </CardDescription>
-              <Button asChild className="mt-4">
-                <Link to="/machine">Explorar</Link>
-              </Button>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <BookOpenIcon className="mr-2 h-4 w-4" />
-                Aplicaciones Clínicas
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <CardDescription>
-                Descubre cómo se aplican los rayos X en diferentes escenarios clínicos y diagnósticos.
-              </CardDescription>
-              <Button asChild className="mt-4">
-                <Link to="/clinical">Ver casos</Link>
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
       </main>
     </div>
   );
