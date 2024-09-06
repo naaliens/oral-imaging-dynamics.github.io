@@ -1,16 +1,33 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { AtomIcon, RadioIcon, BookOpenIcon, BookmarkIcon, HelpCircleIcon, Target } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Slider } from "@/components/ui/slider";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const Home = () => {
-  const scrollToSection = (id) => {
-    const element = document.getElementById(id);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
-    }
+  const [fotonEnergia, setFotonEnergia] = useState(70);
+  const [fotonAngulo, setFotonAngulo] = useState(0);
+  const [material, setMaterial] = useState('hueso');
+  const [radiacionTipo, setRadiacionTipo] = useState('alfa');
+  const [tejidoGrosor, setTejidoGrosor] = useState(5);
+  const [maquinaKvp, setMaquinaKvp] = useState(70);
+  const [maquinaMa, setMaquinaMa] = useState(10);
+  const [maquinaTiempo, setMaquinaTiempo] = useState(0.1);
+
+  const calcularDisperso = (energia, angulo) => {
+    return energia * Math.cos(angulo * Math.PI / 180);
+  };
+
+  const calcularLET = (tipo, grosor) => {
+    const letValores = { alfa: 100, beta: 20, gamma: 5 };
+    return letValores[tipo] / grosor;
+  };
+
+  const calcularCalidadImagen = (kvp, ma, tiempo) => {
+    return (kvp * ma * tiempo) / 100;
   };
 
   return (
@@ -23,48 +40,141 @@ const Home = () => {
           <p className="mt-3 max-w-md mx-auto text-base text-gray-500 sm:text-lg md:mt-5 md:text-xl md:max-w-3xl">
             Explorando los fundamentos y la tecnología de los rayos X en la odontología
           </p>
-          <div className="mt-5 max-w-md mx-auto sm:flex sm:justify-center md:mt-8">
-            <div className="rounded-md shadow">
-              <Button onClick={() => scrollToSection('course-intro')} className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 md:py-4 md:text-lg md:px-10">
-                Comenzar Curso
-              </Button>
-            </div>
-            <div className="mt-3 rounded-md shadow sm:mt-0 sm:ml-3">
-              <Button onClick={() => scrollToSection('course-structure')} className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-indigo-600 bg-white hover:bg-gray-50 md:py-4 md:text-lg md:px-10">
-                Ver Contenidos
-              </Button>
-            </div>
-          </div>
         </div>
 
-        <Carousel className="w-full max-w-xs mx-auto mb-12">
-          <CarouselContent>
-            {[1, 2, 3].map((index) => (
-              <CarouselItem key={index}>
-                <div className="p-1">
-                  <Card>
-                    <CardContent className="flex aspect-square items-center justify-center p-6">
-                      <span className="text-3xl font-semibold">{`Caso Clínico ${index}`}</span>
-                    </CardContent>
-                  </Card>
+        <Tabs defaultValue="simulations" className="w-full mb-12">
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="simulations">Simulaciones Interactivas</TabsTrigger>
+            <TabsTrigger value="quiz">Quiz Interactivo</TabsTrigger>
+            <TabsTrigger value="bibliography">Bibliografía</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="simulations">
+            <Card>
+              <CardHeader>
+                <CardTitle>Simulaciones Interactivas</CardTitle>
+                <CardDescription>Explora los conceptos de física de rayos X a través de simulaciones interactivas</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                  <div>
+                    <h3 className="text-lg font-semibold mb-4">Dispersión Compton y Coherente</h3>
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700">Energía del fotón (keV)</label>
+                        <Slider value={[fotonEnergia]} onValueChange={(value) => setFotonEnergia(value[0])} min={0} max={150} step={1} />
+                        <span>{fotonEnergia} keV</span>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700">Ángulo de dispersión</label>
+                        <Slider value={[fotonAngulo]} onValueChange={(value) => setFotonAngulo(value[0])} min={0} max={180} step={1} />
+                        <span>{fotonAngulo}°</span>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700">Material de interacción</label>
+                        <Select value={material} onValueChange={setMaterial}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Selecciona un material" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="hueso">Hueso</SelectItem>
+                            <SelectItem value="tejido_blando">Tejido blando</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <p>Energía dispersada: {calcularDisperso(fotonEnergia, fotonAngulo).toFixed(2)} keV</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <h3 className="text-lg font-semibold mb-4">Radiación Particulada</h3>
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700">Tipo de radiación</label>
+                        <Select value={radiacionTipo} onValueChange={setRadiacionTipo}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Selecciona un tipo" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="alfa">Alfa</SelectItem>
+                            <SelectItem value="beta">Beta</SelectItem>
+                            <SelectItem value="gamma">Gamma</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700">Grosor del tejido (mm)</label>
+                        <Slider value={[tejidoGrosor]} onValueChange={(value) => setTejidoGrosor(value[0])} min={1} max={20} step={0.1} />
+                        <span>{tejidoGrosor.toFixed(1)} mm</span>
+                      </div>
+                      <div>
+                        <p>LET: {calcularLET(radiacionTipo, tejidoGrosor).toFixed(2)}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <h3 className="text-lg font-semibold mb-4">Máquina de Rayos X</h3>
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700">Voltaje (kVp)</label>
+                        <Slider value={[maquinaKvp]} onValueChange={(value) => setMaquinaKvp(value[0])} min={40} max={120} step={1} />
+                        <span>{maquinaKvp} kVp</span>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700">Corriente (mA)</label>
+                        <Slider value={[maquinaMa]} onValueChange={(value) => setMaquinaMa(value[0])} min={1} max={20} step={0.1} />
+                        <span>{maquinaMa.toFixed(1)} mA</span>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700">Tiempo de exposición (s)</label>
+                        <Slider value={[maquinaTiempo]} onValueChange={(value) => setMaquinaTiempo(value[0])} min={0.1} max={1} step={0.1} />
+                        <span>{maquinaTiempo.toFixed(1)} s</span>
+                      </div>
+                      <div>
+                        <p>Calidad de imagen: {calcularCalidadImagen(maquinaKvp, maquinaMa, maquinaTiempo).toFixed(2)}%</p>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              </CarouselItem>
-            ))}
-          </CarouselContent>
-          <CarouselPrevious />
-          <CarouselNext />
-        </Carousel>
+              </CardContent>
+            </Card>
+          </TabsContent>
 
-        <div id="course-intro" className="bg-white shadow overflow-hidden sm:rounded-lg mb-12">
-          <div className="px-4 py-5 sm:p-6">
-            <h2 className="text-lg leading-6 font-medium text-gray-900 mb-2">Introducción al Curso</h2>
-            <p className="mt-1 max-w-2xl text-sm text-gray-500">
-              La radiografía juega un papel crucial en el diagnóstico dental, complementando el examen clínico y el historial del paciente. Este curso abordará los fundamentos de la imagenología oral, proporcionando una comprensión profunda de los principios físicos y las aplicaciones clínicas de los rayos X en odontología.
-            </p>
-          </div>
-        </div>
+          <TabsContent value="quiz">
+            <Card>
+              <CardHeader>
+                <CardTitle>Quiz Interactivo</CardTitle>
+                <CardDescription>Pon a prueba tus conocimientos sobre imagenología oral</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p>Aquí se implementará un quiz interactivo basado en la información proporcionada.</p>
+              </CardContent>
+            </Card>
+          </TabsContent>
 
-        <div id="course-structure" className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 mb-12">
+          <TabsContent value="bibliography">
+            <Card>
+              <CardHeader>
+                <CardTitle>Bibliografía</CardTitle>
+                <CardDescription>Referencias y recursos adicionales</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ul className="list-disc pl-5 space-y-2">
+                  <li>White, S. C., & Pharoah, M. J. (2014). <i>Oral Radiology: Principles and Interpretation</i> (8th ed.). Elsevier. Capítulo 1: Física de los Rayos X y la Máquina de Rayos.</li>
+                  <li><i>Efectos Biológicos de las Radiaciones Ionizantes.</i></li>
+                  <li><i>Receptores Digitales.</i></li>
+                  <li><i>Película Radiográfica Convencional.</i></li>
+                  <li><i>Geometría Proyeccional.</i></li>
+                </ul>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 mb-12">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center">
@@ -115,72 +225,6 @@ const Home = () => {
               </Button>
             </CardContent>
           </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <BookmarkIcon className="mr-2 h-4 w-4" />
-                Recursos Adicionales
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <CardDescription>
-                Accede a bibliografía, glosarios y evaluaciones para reforzar tu aprendizaje.
-              </CardDescription>
-              <Button asChild className="mt-4">
-                <Link to="/resources">Acceder</Link>
-              </Button>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <HelpCircleIcon className="mr-2 h-4 w-4" />
-                Quiz Interactivo
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <CardDescription>
-                Pon a prueba tus conocimientos con nuestros quizzes adaptativos.
-              </CardDescription>
-              <Button asChild className="mt-4">
-                <Link to="/quiz">Iniciar Quiz</Link>
-              </Button>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <Target className="mr-2 h-4 w-4" />
-                Simulaciones Interactivas
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <CardDescription>
-                Experimenta con simulaciones virtuales de equipos de rayos X y diagnóstico radiográfico.
-              </CardDescription>
-              <Button asChild className="mt-4">
-                <Link to="/simulations">Iniciar simulación</Link>
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
-
-        <div className="bg-blue-50 border-l-4 border-blue-400 p-4 mb-12">
-          <div className="flex">
-            <div className="flex-shrink-0">
-              <svg className="h-5 w-5 text-blue-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-              </svg>
-            </div>
-            <div className="ml-3">
-              <p className="text-sm text-blue-700">
-                Este curso está diseñado para proporcionar una comprensión profunda de la imagenología oral. Navega por las diferentes secciones para explorar cada tema en detalle y acceder a recursos interactivos que mejorarán tu aprendizaje.
-              </p>
-            </div>
-          </div>
         </div>
       </main>
     </div>
