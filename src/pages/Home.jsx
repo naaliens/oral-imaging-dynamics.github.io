@@ -1,9 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { AtomIcon, RadioIcon, BookOpenIcon, BookmarkIcon } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
@@ -28,74 +25,41 @@ const Home = () => {
   useEffect(() => {
     const generarImagenSimulada = () => {
       const canvas = document.createElement('canvas');
-      canvas.width = 200;
-      canvas.height = 200;
+      canvas.width = 500;
+      canvas.height = 500;
       const ctx = canvas.getContext('2d');
       
-      // Simular diferentes materiales
-      switch(material) {
-        case 'hueso_tejido':
-          ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
-          ctx.fillRect(0, 0, 200, 200);
-          ctx.fillStyle = 'rgba(100, 100, 100, 0.5)';
-          ctx.fillRect(50, 50, 100, 100);
-          break;
-        case 'hueso':
-          ctx.fillStyle = 'white';
-          ctx.fillRect(0, 0, 200, 200);
-          break;
-        case 'tejido_blando':
-          ctx.fillStyle = 'rgba(200, 200, 200, 0.5)';
-          ctx.fillRect(0, 0, 200, 200);
-          break;
-        case 'diente_brackets':
-          ctx.fillStyle = 'white';
-          ctx.fillRect(0, 0, 200, 200);
-          ctx.fillStyle = 'black';
-          ctx.fillRect(80, 80, 40, 40);
-          break;
-        case 'diente_implantes':
-          ctx.fillStyle = 'white';
-          ctx.fillRect(0, 0, 200, 200);
-          ctx.fillStyle = 'rgba(50, 50, 50, 1)';
-          ctx.fillRect(90, 50, 20, 100);
-          break;
-        case 'diente_endodoncia':
-          ctx.fillStyle = 'white';
-          ctx.fillRect(0, 0, 200, 200);
-          ctx.strokeStyle = 'black';
-          ctx.beginPath();
-          ctx.moveTo(100, 0);
-          ctx.lineTo(100, 200);
-          ctx.stroke();
-          break;
-      }
-      
-      // Aplicar efectos basados en parámetros
-      const imageData = ctx.getImageData(0, 0, 200, 200);
-      const data = imageData.data;
-      for (let i = 0; i < data.length; i += 4) {
-        // Simular efecto de energía del fotón
-        const energyFactor = fotonEnergia / 112;
-        data[i] *= energyFactor;
-        data[i+1] *= energyFactor;
-        data[i+2] *= energyFactor;
+      const img = new Image();
+      img.onload = () => {
+        ctx.drawImage(img, 0, 0, 500, 500);
         
-        // Simular efecto de grosor del tejido
-        const thicknessFactor = 8.9 / tejidoGrosor;
-        data[i] *= thicknessFactor;
-        data[i+1] *= thicknessFactor;
-        data[i+2] *= thicknessFactor;
+        // Aplicar efectos basados en parámetros
+        const imageData = ctx.getImageData(0, 0, 500, 500);
+        const data = imageData.data;
+        for (let i = 0; i < data.length; i += 4) {
+          // Simular efecto de energía del fotón
+          const energyFactor = fotonEnergia / 112;
+          data[i] *= energyFactor;
+          data[i+1] *= energyFactor;
+          data[i+2] *= energyFactor;
+          
+          // Simular efecto de grosor del tejido
+          const thicknessFactor = 8.9 / tejidoGrosor;
+          data[i] *= thicknessFactor;
+          data[i+1] *= thicknessFactor;
+          data[i+2] *= thicknessFactor;
+          
+          // Simular efecto de kVp, mA y tiempo de exposición
+          const exposureFactor = (maquinaKvp * maquinaMa * maquinaTiempo) / (70 * 10 * 0.1);
+          data[i] = Math.min(255, data[i] * exposureFactor);
+          data[i+1] = Math.min(255, data[i+1] * exposureFactor);
+          data[i+2] = Math.min(255, data[i+2] * exposureFactor);
+        }
+        ctx.putImageData(imageData, 0, 0);
         
-        // Simular efecto de kVp, mA y tiempo de exposición
-        const exposureFactor = (maquinaKvp * maquinaMa * maquinaTiempo) / (70 * 10 * 0.1);
-        data[i] = Math.min(255, data[i] * exposureFactor);
-        data[i+1] = Math.min(255, data[i+1] * exposureFactor);
-        data[i+2] = Math.min(255, data[i+2] * exposureFactor);
-      }
-      ctx.putImageData(imageData, 0, 0);
-      
-      setImagenSimulada(canvas.toDataURL());
+        setImagenSimulada(canvas.toDataURL());
+      };
+      img.src = `/images/${material}.png`;
     };
 
     generarImagenSimulada();
@@ -143,11 +107,11 @@ const Home = () => {
                           </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="hueso_tejido">Hueso y tejido blando</SelectItem>
-                            <SelectItem value="hueso">Hueso solo</SelectItem>
+                            <SelectItem value="hueso_solo">Hueso solo</SelectItem>
                             <SelectItem value="tejido_blando">Tejido blando solo</SelectItem>
-                            <SelectItem value="diente_brackets">Diente con aparatos (brackets)</SelectItem>
-                            <SelectItem value="diente_implantes">Dientes con implantes</SelectItem>
-                            <SelectItem value="diente_endodoncia">Dientes con endodoncia</SelectItem>
+                            <SelectItem value="dientes_brackets">Diente con aparatos (brackets)</SelectItem>
+                            <SelectItem value="dientes_implantes">Dientes con implantes</SelectItem>
+                            <SelectItem value="dientes_endodoncia">Dientes con endodoncia</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
@@ -198,11 +162,9 @@ const Home = () => {
               </CardHeader>
               <CardContent>
                 <ul className="list-disc pl-5 space-y-2">
-                  <li>White, S. C., & Pharoah, M. J. (2014). <i>Oral Radiology: Principles and Interpretation</i> (8th ed.). Elsevier. Capítulo 1: Física de los Rayos X y la Máquina de Rayos.</li>
-                  <li><i>Efectos Biológicos de las Radiaciones Ionizantes.</i></li>
-                  <li><i>Receptores Digitales.</i></li>
-                  <li><i>Película Radiográfica Convencional.</i></li>
-                  <li><i>Geometría Proyeccional.</i></li>
+                  <li>White, S. C., & Pharoah, M. J. (2014). <i>Oral Radiology: Principles and Interpretation</i> (8th ed.). Elsevier.</li>
+                  <li>Bushberg, J. T., et al. (2011). <i>The Essential Physics of Medical Imaging</i> (3rd ed.). Lippincott Williams & Wilkins.</li>
+                  <li>Iannucci, J. M., & Howerton, L. J. (2016). <i>Dental Radiography: Principles and Techniques</i> (5th ed.). Elsevier.</li>
                 </ul>
               </CardContent>
             </Card>
