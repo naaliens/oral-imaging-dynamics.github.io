@@ -44,22 +44,6 @@ const Home = () => {
   const [material, setMaterial] = useState('hueso_tejido');
   const [config, setConfig] = useState(materialConfigs.hueso_tejido.config);
   const canvasRef = useRef(null);
-  const iconRefs = useRef({});
-
-  useEffect(() => {
-    Object.keys(materialConfigs).forEach(key => {
-      const IconComponent = materialConfigs[key].icon;
-      const iconElement = document.createElement('div');
-      iconElement.appendChild(React.createElement(IconComponent, { className: 'w-8 h-8' }));
-      const iconSvg = iconElement.innerHTML;
-      const blob = new Blob([iconSvg], {type: 'image/svg+xml'});
-      const url = URL.createObjectURL(blob);
-      const img = new Image();
-      img.src = url;
-      img.onload = () => URL.revokeObjectURL(url);
-      iconRefs.current[key] = img;
-    });
-  }, []);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -85,11 +69,18 @@ const Home = () => {
     ctx.fill();
     
     // Draw icon
-    const icon = iconRefs.current[material];
-    if (icon) {
-      const iconSize = radius;
-      ctx.drawImage(icon, centerX - iconSize / 2, centerY - iconSize / 2, iconSize, iconSize);
-    }
+    const IconComponent = materialConfigs[material].icon;
+    const iconSize = radius;
+    const iconElement = document.createElement('div');
+    iconElement.style.width = `${iconSize}px`;
+    iconElement.style.height = `${iconSize}px`;
+    ReactDOM.render(<IconComponent />, iconElement);
+    
+    const iconImage = new Image();
+    iconImage.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(iconElement.innerHTML)}`;
+    iconImage.onload = () => {
+      ctx.drawImage(iconImage, centerX - iconSize / 2, centerY - iconSize / 2, iconSize, iconSize);
+    };
     
     // Draw rays
     const rayCount = 8;
@@ -151,10 +142,10 @@ const Home = () => {
                             <SelectValue placeholder="Selecciona un material" />
                           </SelectTrigger>
                           <SelectContent>
-                            {Object.keys(materialConfigs).map((key) => (
+                            {Object.entries(materialConfigs).map(([key, { icon: Icon }]) => (
                               <SelectItem key={key} value={key}>
                                 <div className="flex items-center">
-                                  {React.createElement(materialConfigs[key].icon, { className: 'w-8 h-8 mr-2' })}
+                                  <Icon className="w-8 h-8 mr-2" />
                                   <span>{key.replace('_', ' ').charAt(0).toUpperCase() + key.replace('_', ' ').slice(1)}</span>
                                 </div>
                               </SelectItem>
