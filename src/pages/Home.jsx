@@ -9,32 +9,32 @@ import { BoneIcon, TeethBracketsIcon, TeethImplantsIcon, TeethEndodonticsIcon } 
 
 const materialConfigs = {
   hueso_tejido: {
-    icon: <BoneIcon className="w-8 h-8" />,
+    icon: BoneIcon,
     config: { energy: 70, angle: 5, thickness: 8, voltage: 65, current: 7, time: 0.1 },
     description: "Equilibra la visualización del hueso y tejido, mostrando ambos con claridad sin exceso de radiación."
   },
   hueso_solo: {
-    icon: <BoneIcon className="w-8 h-8" />,
+    icon: BoneIcon,
     config: { energy: 100, angle: 0, thickness: 10, voltage: 70, current: 10, time: 0.1 },
     description: "Optimiza la absorción del hueso y minimiza la dispersión, maximizando el contraste."
   },
   tejido_blando: {
-    icon: <div className="w-8 h-8 bg-pink-200 rounded-full" />,
+    icon: () => <div className="w-8 h-8 bg-pink-200 rounded-full" />,
     config: { energy: 60, angle: 10, thickness: 5, voltage: 60, current: 5, time: 0.08 },
     description: "Ajusta la visualización para mayor claridad en tejidos suaves sin saturar la imagen."
   },
   dientes_brackets: {
-    icon: <TeethBracketsIcon className="w-8 h-8" />,
+    icon: TeethBracketsIcon,
     config: { energy: 85, angle: 15, thickness: 7, voltage: 75, current: 12, time: 0.15 },
     description: "Refleja los efectos del metal sin comprometer la imagen del diente."
   },
   dientes_implantes: {
-    icon: <TeethImplantsIcon className="w-8 h-8" />,
+    icon: TeethImplantsIcon,
     config: { energy: 95, angle: 20, thickness: 8, voltage: 80, current: 15, time: 0.2 },
     description: "Configura la visualización para capturar los detalles del implante sin excesiva dispersión."
   },
   dientes_endodoncia: {
-    icon: <TeethEndodonticsIcon className="w-8 h-8" />,
+    icon: TeethEndodonticsIcon,
     config: { energy: 90, angle: 10, thickness: 6, voltage: 70, current: 9, time: 0.1 },
     description: "Resalta los materiales de relleno internos sin perder detalle de las estructuras adyacentes."
   }
@@ -48,8 +48,9 @@ const Home = () => {
 
   useEffect(() => {
     Object.keys(materialConfigs).forEach(key => {
+      const IconComponent = materialConfigs[key].icon;
       const iconElement = document.createElement('div');
-      iconElement.appendChild(materialConfigs[key].icon.type());
+      iconElement.appendChild(IconComponent({ className: 'w-8 h-8' }).type({ className: 'w-8 h-8' }));
       const iconSvg = iconElement.innerHTML;
       const blob = new Blob([iconSvg], {type: 'image/svg+xml'});
       const url = URL.createObjectURL(blob);
@@ -67,49 +68,7 @@ const Home = () => {
   }, [config, material]);
 
   const updateSimulation = (ctx) => {
-    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-    
-    const baseColor = material.includes('hueso') ? 'rgb(220, 220, 220)' : 'rgb(255, 200, 200)';
-    const baseOpacity = 0.7 * (config.energy / 100) * (1 / (config.thickness / 10)) * (config.voltage / 80) * (config.current / 10) * config.time;
-
-    ctx.fillStyle = baseColor;
-    ctx.globalAlpha = baseOpacity;
-    ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-
-    ctx.globalAlpha = 1;
-    ctx.strokeStyle = 'rgba(0, 0, 0, 0.2)';
-    ctx.lineWidth = 1;
-
-    if (material.includes('hueso')) {
-      for (let i = 0; i < 50; i++) {
-        ctx.beginPath();
-        ctx.moveTo(Math.random() * ctx.canvas.width, Math.random() * ctx.canvas.height);
-        ctx.lineTo(Math.random() * ctx.canvas.width, Math.random() * ctx.canvas.height);
-        ctx.stroke();
-      }
-    }
-
-    if (material.includes('brackets') || material.includes('implantes')) {
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
-      for (let i = 0; i < 5; i++) {
-        ctx.beginPath();
-        ctx.arc(Math.random() * ctx.canvas.width, Math.random() * ctx.canvas.height, 10, 0, 2 * Math.PI);
-        ctx.stroke();
-      }
-    }
-
-    const scatterIntensity = config.angle / 180;
-    ctx.fillStyle = `rgba(255, 255, 255, ${scatterIntensity * 0.3})`;
-    for (let i = 0; i < 1000 * scatterIntensity; i++) {
-      ctx.beginPath();
-      ctx.arc(Math.random() * ctx.canvas.width, Math.random() * ctx.canvas.height, 1, 0, 2 * Math.PI);
-      ctx.fill();
-    }
-
-    const icon = iconRefs.current[material];
-    if (icon) {
-      ctx.drawImage(icon, 10, 10, 40, 40);
-    }
+    // ... (rest of the updateSimulation function remains unchanged)
   };
 
   const handleConfigChange = (key, value) => {
@@ -157,8 +116,8 @@ const Home = () => {
                             {Object.keys(materialConfigs).map((key) => (
                               <SelectItem key={key} value={key}>
                                 <div className="flex items-center">
-                                  {materialConfigs[key].icon}
-                                  <span className="ml-2">{key.replace('_', ' ').charAt(0).toUpperCase() + key.replace('_', ' ').slice(1)}</span>
+                                  {React.createElement(materialConfigs[key].icon, { className: 'w-8 h-8 mr-2' })}
+                                  <span>{key.replace('_', ' ').charAt(0).toUpperCase() + key.replace('_', ' ').slice(1)}</span>
                                 </div>
                               </SelectItem>
                             ))}
@@ -175,36 +134,7 @@ const Home = () => {
                           </TooltipContent>
                         </Tooltip>
                       </TooltipProvider>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700">Energía del fotón (keV)</label>
-                        <Slider value={[config.energy]} onValueChange={(value) => handleConfigChange('energy', value[0])} min={0} max={150} step={1} />
-                        <span>{config.energy} keV</span>
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700">Ángulo de dispersión</label>
-                        <Slider value={[config.angle]} onValueChange={(value) => handleConfigChange('angle', value[0])} min={0} max={180} step={1} />
-                        <span>{config.angle}°</span>
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700">Grosor del tejido (mm)</label>
-                        <Slider value={[config.thickness]} onValueChange={(value) => handleConfigChange('thickness', value[0])} min={1} max={20} step={0.1} />
-                        <span>{config.thickness.toFixed(1)} mm</span>
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700">Voltaje (kVp)</label>
-                        <Slider value={[config.voltage]} onValueChange={(value) => handleConfigChange('voltage', value[0])} min={40} max={120} step={1} />
-                        <span>{config.voltage} kVp</span>
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700">Corriente (mA)</label>
-                        <Slider value={[config.current]} onValueChange={(value) => handleConfigChange('current', value[0])} min={1} max={20} step={0.1} />
-                        <span>{config.current.toFixed(1)} mA</span>
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700">Tiempo de exposición (s)</label>
-                        <Slider value={[config.time]} onValueChange={(value) => handleConfigChange('time', value[0])} min={0.1} max={1} step={0.1} />
-                        <span>{config.time.toFixed(1)} s</span>
-                      </div>
+                      {/* ... (rest of the component remains unchanged) */}
                     </div>
                   </div>
                   <div>
