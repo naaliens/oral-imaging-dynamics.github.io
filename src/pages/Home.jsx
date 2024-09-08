@@ -47,8 +47,10 @@ const Home = () => {
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
-    updateSimulation(ctx);
+    if (canvas) {
+      const ctx = canvas.getContext('2d');
+      updateSimulation(ctx);
+    }
   }, [config, material]);
 
   const updateSimulation = (ctx) => {
@@ -68,19 +70,12 @@ const Home = () => {
     ctx.fillStyle = '#d4d4d4';
     ctx.fill();
     
-    // Draw icon
-    const IconComponent = materialConfigs[material].icon;
-    const iconSize = radius;
-    const iconElement = document.createElement('div');
-    iconElement.style.width = `${iconSize}px`;
-    iconElement.style.height = `${iconSize}px`;
-    ReactDOM.render(<IconComponent />, iconElement);
-    
-    const iconImage = new Image();
-    iconImage.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(iconElement.innerHTML)}`;
-    iconImage.onload = () => {
-      ctx.drawImage(iconImage, centerX - iconSize / 2, centerY - iconSize / 2, iconSize, iconSize);
-    };
+    // Draw icon (simplified)
+    ctx.fillStyle = '#000000';
+    ctx.font = '48px Arial';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('Icon', centerX, centerY);
     
     // Draw rays
     const rayCount = 8;
