@@ -50,7 +50,7 @@ const Home = () => {
     Object.keys(materialConfigs).forEach(key => {
       const IconComponent = materialConfigs[key].icon;
       const iconElement = document.createElement('div');
-      iconElement.appendChild(IconComponent({ className: 'w-8 h-8' }).type({ className: 'w-8 h-8' }));
+      iconElement.appendChild(React.createElement(IconComponent, { className: 'w-8 h-8' }));
       const iconSvg = iconElement.innerHTML;
       const blob = new Blob([iconSvg], {type: 'image/svg+xml'});
       const url = URL.createObjectURL(blob);
@@ -68,7 +68,45 @@ const Home = () => {
   }, [config, material]);
 
   const updateSimulation = (ctx) => {
-    // ... (rest of the updateSimulation function remains unchanged)
+    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    
+    // Draw background
+    ctx.fillStyle = '#f0f0f0';
+    ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    
+    // Draw material representation
+    const centerX = ctx.canvas.width / 2;
+    const centerY = ctx.canvas.height / 2;
+    const radius = Math.min(ctx.canvas.width, ctx.canvas.height) / 4;
+    
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+    ctx.fillStyle = '#d4d4d4';
+    ctx.fill();
+    
+    // Draw icon
+    const icon = iconRefs.current[material];
+    if (icon) {
+      const iconSize = radius;
+      ctx.drawImage(icon, centerX - iconSize / 2, centerY - iconSize / 2, iconSize, iconSize);
+    }
+    
+    // Draw rays
+    const rayCount = 8;
+    const rayLength = radius * 1.5;
+    ctx.strokeStyle = `rgba(255, 255, 0, ${config.energy / 100})`;
+    ctx.lineWidth = 2;
+    
+    for (let i = 0; i < rayCount; i++) {
+      const angle = (i / rayCount) * 2 * Math.PI + config.angle * Math.PI / 180;
+      ctx.beginPath();
+      ctx.moveTo(centerX, centerY);
+      ctx.lineTo(
+        centerX + Math.cos(angle) * rayLength,
+        centerY + Math.sin(angle) * rayLength
+      );
+      ctx.stroke();
+    }
   };
 
   const handleConfigChange = (key, value) => {
@@ -134,7 +172,18 @@ const Home = () => {
                           </TooltipContent>
                         </Tooltip>
                       </TooltipProvider>
-                      {/* ... (rest of the component remains unchanged) */}
+                      {Object.entries(config).map(([key, value]) => (
+                        <div key={key}>
+                          <label className="block text-sm font-medium text-gray-700">{key.charAt(0).toUpperCase() + key.slice(1)}</label>
+                          <Slider
+                            value={[value]}
+                            onValueChange={(newValue) => handleConfigChange(key, newValue[0])}
+                            max={key === 'time' ? 1 : 100}
+                            step={key === 'time' ? 0.1 : 1}
+                          />
+                          <span className="text-sm text-gray-500">{value.toFixed(key === 'time' ? 1 : 0)}</span>
+                        </div>
+                      ))}
                     </div>
                   </div>
                   <div>
