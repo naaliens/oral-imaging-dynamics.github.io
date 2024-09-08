@@ -5,6 +5,7 @@ import { Slider } from "@/components/ui/slider";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Switch } from "@/components/ui/switch";
 
 const materialConfigs = {
   hueso_tejido: {
@@ -36,6 +37,7 @@ const materialConfigs = {
 const Home = () => {
   const [material, setMaterial] = useState('hueso_tejido');
   const [config, setConfig] = useState(materialConfigs.hueso_tejido.config);
+  const [isRadiography, setIsRadiography] = useState(false);
   const canvasRef = useRef(null);
 
   useEffect(() => {
@@ -44,7 +46,7 @@ const Home = () => {
       const ctx = canvas.getContext('2d');
       updateSimulation(ctx);
     }
-  }, [config, material]);
+  }, [config, material, isRadiography]);
 
   const updateSimulation = (ctx) => {
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
@@ -55,39 +57,10 @@ const Home = () => {
     const centerY = ctx.canvas.height / 2;
     const radius = Math.min(ctx.canvas.width, ctx.canvas.height) / 4;
     
-    ctx.beginPath();
-    ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
-    ctx.fillStyle = getMaterialColor(material);
-    ctx.fill();
-    
     drawMaterialIcon(ctx, material, centerX, centerY, radius);
     
-    const rayCount = 8;
-    const rayLength = radius * 1.5;
-    ctx.strokeStyle = `rgba(255, 255, 0, ${config.energia / 100})`;
-    ctx.lineWidth = 2;
-    
-    for (let i = 0; i < rayCount; i++) {
-      const angle = (i / rayCount) * 2 * Math.PI + config.angulo * Math.PI / 180;
-      ctx.beginPath();
-      ctx.moveTo(centerX, centerY);
-      ctx.lineTo(
-        centerX + Math.cos(angle) * rayLength,
-        centerY + Math.sin(angle) * rayLength
-      );
-      ctx.stroke();
-    }
-  };
-
-  const getMaterialColor = (material) => {
-    switch (material) {
-      case 'hueso_tejido': return '#e0e0e0';
-      case 'hueso_solo': return '#d3d3d3';
-      case 'tejido_blando': return '#ffc0cb';
-      case 'dientes_brackets': return '#ffffff';
-      case 'dientes_implantes': return '#c0c0c0';
-      case 'dientes_endodoncia': return '#fffaf0';
-      default: return '#f0f0f0';
+    if (isRadiography) {
+      applyRadiographyEffect(ctx, centerX, centerY, radius);
     }
   };
 
@@ -232,12 +205,26 @@ const Home = () => {
     ctx.fill();
   };
 
+  const applyRadiographyEffect = (ctx, centerX, centerY, radius) => {
+    const imageData = ctx.getImageData(centerX - radius, centerY - radius, radius * 2, radius * 2);
+    const data = imageData.data;
+    for (let i = 0; i < data.length; i += 4) {
+      const avg = (data[i] + data[i + 1] + data[i + 2]) / 3;
+      data[i] = data[i + 1] = data[i + 2] = 255 - avg;
+    }
+    ctx.putImageData(imageData, centerX - radius, centerY - radius);
+  };
+
   const handleConfigChange = (key, value) => {
     setConfig(prev => ({ ...prev, [key]: value }));
   };
 
   const resetToBasicConfig = () => {
     setConfig(materialConfigs[material].config);
+  };
+
+  const toggleRadiography = () => {
+    setIsRadiography(!isRadiography);
   };
 
   return (
@@ -304,6 +291,12 @@ const Home = () => {
                           <span className="text-sm text-gray-500">{value.toFixed(key === 'tiempo' ? 1 : 0)}</span>
                         </div>
                       ))}
+                      <div className="flex items-center space-x-2">
+                        <Switch id="radiography-mode" checked={isRadiography} onCheckedChange={toggleRadiography} />
+                        <label htmlFor="radiography-mode" className="text-sm font-medium text-gray-700">
+                          Modo Radiografía
+                        </label>
+                      </div>
                     </div>
                   </div>
                   <div>
