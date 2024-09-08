@@ -67,15 +67,15 @@ const Home = () => {
     
     ctx.beginPath();
     ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
-    ctx.fillStyle = '#d4d4d4';
+    ctx.fillStyle = getMaterialColor(material);
     ctx.fill();
     
-    // Draw icon (simplified)
+    // Draw icon (simplified representation)
     ctx.fillStyle = '#000000';
     ctx.font = '48px Arial';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText('Icon', centerX, centerY);
+    ctx.fillText(getMaterialSymbol(material), centerX, centerY);
     
     // Draw rays
     const rayCount = 8;
@@ -92,6 +92,30 @@ const Home = () => {
         centerY + Math.sin(angle) * rayLength
       );
       ctx.stroke();
+    }
+  };
+
+  const getMaterialColor = (material) => {
+    switch (material) {
+      case 'hueso_tejido': return '#e0e0e0';
+      case 'hueso_solo': return '#d3d3d3';
+      case 'tejido_blando': return '#ffc0cb';
+      case 'dientes_brackets': return '#ffffff';
+      case 'dientes_implantes': return '#c0c0c0';
+      case 'dientes_endodoncia': return '#fffaf0';
+      default: return '#f0f0f0';
+    }
+  };
+
+  const getMaterialSymbol = (material) => {
+    switch (material) {
+      case 'hueso_tejido': return 'H+T';
+      case 'hueso_solo': return 'H';
+      case 'tejido_blando': return 'T';
+      case 'dientes_brackets': return 'D+B';
+      case 'dientes_implantes': return 'D+I';
+      case 'dientes_endodoncia': return 'D+E';
+      default: return '?';
     }
   };
 
