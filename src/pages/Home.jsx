@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
@@ -12,7 +12,95 @@ const Home = () => {
   const [maquinaKvp, setMaquinaKvp] = useState(70);
   const [maquinaMa, setMaquinaMa] = useState(10);
   const [maquinaTiempo, setMaquinaTiempo] = useState(0.1);
-  const [imagenSimulada, setImagenSimulada] = useState(null);
+  const canvasRef = useRef(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+    updateSimulation(ctx);
+  }, [fotonEnergia, fotonAngulo, material, tejidoGrosor, maquinaKvp, maquinaMa, maquinaTiempo]);
+
+  const updateSimulation = (ctx) => {
+    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    
+    // Base color and opacity based on material
+    let baseColor, baseOpacity;
+    switch(material) {
+      case 'hueso_tejido':
+        baseColor = 'rgb(200, 200, 200)';
+        baseOpacity = 0.7;
+        break;
+      case 'hueso_solo':
+        baseColor = 'rgb(220, 220, 220)';
+        baseOpacity = 0.9;
+        break;
+      case 'tejido_blando':
+        baseColor = 'rgb(180, 180, 180)';
+        baseOpacity = 0.5;
+        break;
+      case 'dientes_brackets':
+        baseColor = 'rgb(230, 230, 230)';
+        baseOpacity = 0.8;
+        break;
+      case 'dientes_implantes':
+        baseColor = 'rgb(240, 240, 240)';
+        baseOpacity = 0.95;
+        break;
+      case 'dientes_endodoncia':
+        baseColor = 'rgb(210, 210, 210)';
+        baseOpacity = 0.85;
+        break;
+      default:
+        baseColor = 'rgb(200, 200, 200)';
+        baseOpacity = 0.7;
+    }
+
+    // Adjust opacity based on parameters
+    const energyFactor = fotonEnergia / 150;
+    const thicknessFactor = tejidoGrosor / 20;
+    const voltageFactor = maquinaKvp / 120;
+    const currentFactor = maquinaMa / 20;
+    const timeFactor = maquinaTiempo;
+
+    const finalOpacity = baseOpacity * energyFactor * (1 / thicknessFactor) * voltageFactor * currentFactor * timeFactor;
+
+    // Draw the simulated X-ray image
+    ctx.fillStyle = baseColor;
+    ctx.globalAlpha = finalOpacity;
+    ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+
+    // Add some texture or structure based on the material
+    ctx.globalAlpha = 1;
+    ctx.strokeStyle = 'rgba(0, 0, 0, 0.2)';
+    ctx.lineWidth = 1;
+
+    if (material === 'hueso_tejido' || material === 'hueso_solo') {
+      // Add bone-like texture
+      for (let i = 0; i < 50; i++) {
+        ctx.beginPath();
+        ctx.moveTo(Math.random() * ctx.canvas.width, Math.random() * ctx.canvas.height);
+        ctx.lineTo(Math.random() * ctx.canvas.width, Math.random() * ctx.canvas.height);
+        ctx.stroke();
+      }
+    } else if (material === 'dientes_brackets' || material === 'dientes_implantes') {
+      // Add metal-like structures
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+      for (let i = 0; i < 5; i++) {
+        ctx.beginPath();
+        ctx.arc(Math.random() * ctx.canvas.width, Math.random() * ctx.canvas.height, 10, 0, 2 * Math.PI);
+        ctx.stroke();
+      }
+    }
+
+    // Simulate X-ray scattering
+    const scatterIntensity = fotonAngulo / 180;
+    ctx.fillStyle = `rgba(255, 255, 255, ${scatterIntensity * 0.3})`;
+    for (let i = 0; i < 1000 * scatterIntensity; i++) {
+      ctx.beginPath();
+      ctx.arc(Math.random() * ctx.canvas.width, Math.random() * ctx.canvas.height, 1, 0, 2 * Math.PI);
+      ctx.fill();
+    }
+  };
 
   const calcularDisperso = (energia, angulo) => {
     return energia * Math.cos(angulo * Math.PI / 180);
@@ -21,49 +109,6 @@ const Home = () => {
   const calcularCalidadImagen = (kvp, ma, tiempo) => {
     return (kvp * ma * tiempo) / 10000;
   };
-
-  useEffect(() => {
-    const generarImagenSimulada = () => {
-      const canvas = document.createElement('canvas');
-      canvas.width = 500;
-      canvas.height = 500;
-      const ctx = canvas.getContext('2d');
-      
-      const img = new Image();
-      img.onload = () => {
-        ctx.drawImage(img, 0, 0, 500, 500);
-        
-        // Aplicar efectos basados en parámetros
-        const imageData = ctx.getImageData(0, 0, 500, 500);
-        const data = imageData.data;
-        for (let i = 0; i < data.length; i += 4) {
-          // Simular efecto de energía del fotón
-          const energyFactor = fotonEnergia / 112;
-          data[i] *= energyFactor;
-          data[i+1] *= energyFactor;
-          data[i+2] *= energyFactor;
-          
-          // Simular efecto de grosor del tejido
-          const thicknessFactor = 8.9 / tejidoGrosor;
-          data[i] *= thicknessFactor;
-          data[i+1] *= thicknessFactor;
-          data[i+2] *= thicknessFactor;
-          
-          // Simular efecto de kVp, mA y tiempo de exposición
-          const exposureFactor = (maquinaKvp * maquinaMa * maquinaTiempo) / (70 * 10 * 0.1);
-          data[i] = Math.min(255, data[i] * exposureFactor);
-          data[i+1] = Math.min(255, data[i+1] * exposureFactor);
-          data[i+2] = Math.min(255, data[i+2] * exposureFactor);
-        }
-        ctx.putImageData(imageData, 0, 0);
-        
-        setImagenSimulada(canvas.toDataURL());
-      };
-      img.src = `/images/${material}.png`;
-    };
-
-    generarImagenSimulada();
-  }, [material, fotonEnergia, fotonAngulo, tejidoGrosor, maquinaKvp, maquinaMa, maquinaTiempo]);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -140,9 +185,7 @@ const Home = () => {
                   <div>
                     <h3 className="text-lg font-semibold mb-4">Visualización en Tiempo Real</h3>
                     <div className="border border-gray-300 rounded-lg p-4">
-                      {imagenSimulada && (
-                        <img src={imagenSimulada} alt="Simulación de rayos X" className="w-full h-auto" />
-                      )}
+                      <canvas ref={canvasRef} width="500" height="500" className="w-full h-auto" />
                     </div>
                     <div className="mt-4">
                       <p>Energía dispersada: {calcularDisperso(fotonEnergia, fotonAngulo).toFixed(2)} keV</p>
