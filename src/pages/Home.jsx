@@ -44,6 +44,21 @@ const Home = () => {
   const [material, setMaterial] = useState('hueso_tejido');
   const [config, setConfig] = useState(materialConfigs.hueso_tejido.config);
   const canvasRef = useRef(null);
+  const iconRefs = useRef({});
+
+  useEffect(() => {
+    Object.keys(materialConfigs).forEach(key => {
+      const iconElement = document.createElement('div');
+      iconElement.appendChild(materialConfigs[key].icon.type());
+      const iconSvg = iconElement.innerHTML;
+      const blob = new Blob([iconSvg], {type: 'image/svg+xml'});
+      const url = URL.createObjectURL(blob);
+      const img = new Image();
+      img.src = url;
+      img.onload = () => URL.revokeObjectURL(url);
+      iconRefs.current[key] = img;
+    });
+  }, []);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -61,7 +76,6 @@ const Home = () => {
     ctx.globalAlpha = baseOpacity;
     ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
-    // Add texture based on material
     ctx.globalAlpha = 1;
     ctx.strokeStyle = 'rgba(0, 0, 0, 0.2)';
     ctx.lineWidth = 1;
@@ -84,7 +98,6 @@ const Home = () => {
       }
     }
 
-    // Simulate X-ray scattering
     const scatterIntensity = config.angle / 180;
     ctx.fillStyle = `rgba(255, 255, 255, ${scatterIntensity * 0.3})`;
     for (let i = 0; i < 1000 * scatterIntensity; i++) {
@@ -93,9 +106,10 @@ const Home = () => {
       ctx.fill();
     }
 
-    // Draw material icon
-    const icon = materialConfigs[material].icon;
-    ctx.drawImage(icon, 10, 10, 40, 40);
+    const icon = iconRefs.current[material];
+    if (icon) {
+      ctx.drawImage(icon, 10, 10, 40, 40);
+    }
   };
 
   const handleConfigChange = (key, value) => {
