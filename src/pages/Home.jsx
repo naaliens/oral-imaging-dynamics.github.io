@@ -5,37 +5,30 @@ import { Slider } from "@/components/ui/slider";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { BoneIcon, TeethBracketsIcon, TeethImplantsIcon, TeethEndodonticsIcon } from '../components/CustomIcons';
 
 const materialConfigs = {
   hueso_tejido: {
-    icon: BoneIcon,
-    config: { energy: 70, angle: 5, thickness: 8, voltage: 65, current: 7, time: 0.1 },
+    config: { energia: 70, angulo: 5, grosor: 8, voltaje: 65, corriente: 7, tiempo: 0.1 },
     description: "Equilibra la visualización del hueso y tejido, mostrando ambos con claridad sin exceso de radiación."
   },
   hueso_solo: {
-    icon: BoneIcon,
-    config: { energy: 100, angle: 0, thickness: 10, voltage: 70, current: 10, time: 0.1 },
+    config: { energia: 100, angulo: 0, grosor: 10, voltaje: 70, corriente: 10, tiempo: 0.1 },
     description: "Optimiza la absorción del hueso y minimiza la dispersión, maximizando el contraste."
   },
   tejido_blando: {
-    icon: () => <div className="w-8 h-8 bg-pink-200 rounded-full" />,
-    config: { energy: 60, angle: 10, thickness: 5, voltage: 60, current: 5, time: 0.08 },
+    config: { energia: 60, angulo: 10, grosor: 5, voltaje: 60, corriente: 5, tiempo: 0.08 },
     description: "Ajusta la visualización para mayor claridad en tejidos suaves sin saturar la imagen."
   },
   dientes_brackets: {
-    icon: TeethBracketsIcon,
-    config: { energy: 85, angle: 15, thickness: 7, voltage: 75, current: 12, time: 0.15 },
+    config: { energia: 85, angulo: 15, grosor: 7, voltaje: 75, corriente: 12, tiempo: 0.15 },
     description: "Refleja los efectos del metal sin comprometer la imagen del diente."
   },
   dientes_implantes: {
-    icon: TeethImplantsIcon,
-    config: { energy: 95, angle: 20, thickness: 8, voltage: 80, current: 15, time: 0.2 },
+    config: { energia: 95, angulo: 20, grosor: 8, voltaje: 80, corriente: 15, tiempo: 0.2 },
     description: "Configura la visualización para capturar los detalles del implante sin excesiva dispersión."
   },
   dientes_endodoncia: {
-    icon: TeethEndodonticsIcon,
-    config: { energy: 90, angle: 10, thickness: 6, voltage: 70, current: 9, time: 0.1 },
+    config: { energia: 90, angulo: 10, grosor: 6, voltaje: 70, corriente: 9, tiempo: 0.1 },
     description: "Resalta los materiales de relleno internos sin perder detalle de las estructuras adyacentes."
   }
 };
@@ -55,12 +48,9 @@ const Home = () => {
 
   const updateSimulation = (ctx) => {
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-    
-    // Draw background
     ctx.fillStyle = '#f0f0f0';
     ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
     
-    // Draw material representation
     const centerX = ctx.canvas.width / 2;
     const centerY = ctx.canvas.height / 2;
     const radius = Math.min(ctx.canvas.width, ctx.canvas.height) / 4;
@@ -70,21 +60,15 @@ const Home = () => {
     ctx.fillStyle = getMaterialColor(material);
     ctx.fill();
     
-    // Draw icon (simplified representation)
-    ctx.fillStyle = '#000000';
-    ctx.font = '48px Arial';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(getMaterialSymbol(material), centerX, centerY);
+    drawMaterialIcon(ctx, material, centerX, centerY, radius);
     
-    // Draw rays
     const rayCount = 8;
     const rayLength = radius * 1.5;
-    ctx.strokeStyle = `rgba(255, 255, 0, ${config.energy / 100})`;
+    ctx.strokeStyle = `rgba(255, 255, 0, ${config.energia / 100})`;
     ctx.lineWidth = 2;
     
     for (let i = 0; i < rayCount; i++) {
-      const angle = (i / rayCount) * 2 * Math.PI + config.angle * Math.PI / 180;
+      const angle = (i / rayCount) * 2 * Math.PI + config.angulo * Math.PI / 180;
       ctx.beginPath();
       ctx.moveTo(centerX, centerY);
       ctx.lineTo(
@@ -107,16 +91,145 @@ const Home = () => {
     }
   };
 
-  const getMaterialSymbol = (material) => {
+  const drawMaterialIcon = (ctx, material, x, y, radius) => {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.scale(radius / 50, radius / 50);
+
     switch (material) {
-      case 'hueso_tejido': return 'H+T';
-      case 'hueso_solo': return 'H';
-      case 'tejido_blando': return 'T';
-      case 'dientes_brackets': return 'D+B';
-      case 'dientes_implantes': return 'D+I';
-      case 'dientes_endodoncia': return 'D+E';
-      default: return '?';
+      case 'hueso_tejido':
+        drawMaxilarWithTissue(ctx);
+        break;
+      case 'hueso_solo':
+        drawBoneOnly(ctx);
+        break;
+      case 'tejido_blando':
+        drawSoftTissue(ctx);
+        break;
+      case 'dientes_brackets':
+        drawToothWithBrackets(ctx);
+        break;
+      case 'dientes_implantes':
+        drawToothWithImplant(ctx);
+        break;
+      case 'dientes_endodoncia':
+        drawToothWithEndodontics(ctx);
+        break;
     }
+
+    ctx.restore();
+  };
+
+  const drawMaxilarWithTissue = (ctx) => {
+    // Dibujar hueso
+    ctx.fillStyle = '#d3d3d3';
+    ctx.beginPath();
+    ctx.moveTo(-40, 20);
+    ctx.quadraticCurveTo(-20, -20, 0, -20);
+    ctx.quadraticCurveTo(20, -20, 40, 20);
+    ctx.quadraticCurveTo(20, 40, 0, 40);
+    ctx.quadraticCurveTo(-20, 40, -40, 20);
+    ctx.fill();
+
+    // Dibujar tejido blando
+    ctx.fillStyle = 'rgba(255, 192, 203, 0.7)';
+    ctx.beginPath();
+    ctx.moveTo(-45, 15);
+    ctx.quadraticCurveTo(-22, -25, 0, -25);
+    ctx.quadraticCurveTo(22, -25, 45, 15);
+    ctx.quadraticCurveTo(22, 45, 0, 45);
+    ctx.quadraticCurveTo(-22, 45, -45, 15);
+    ctx.fill();
+  };
+
+  const drawBoneOnly = (ctx) => {
+    ctx.fillStyle = '#d3d3d3';
+    ctx.beginPath();
+    ctx.moveTo(-40, 20);
+    ctx.quadraticCurveTo(-20, -20, 0, -20);
+    ctx.quadraticCurveTo(20, -20, 40, 20);
+    ctx.quadraticCurveTo(20, 40, 0, 40);
+    ctx.quadraticCurveTo(-20, 40, -40, 20);
+    ctx.fill();
+
+    // Añadir textura
+    for (let i = 0; i < 50; i++) {
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+      ctx.beginPath();
+      ctx.arc(Math.random() * 80 - 40, Math.random() * 60 - 20, 1, 0, 2 * Math.PI);
+      ctx.fill();
+    }
+  };
+
+  const drawSoftTissue = (ctx) => {
+    ctx.fillStyle = '#ffc0cb';
+    ctx.beginPath();
+    ctx.moveTo(-45, 15);
+    ctx.quadraticCurveTo(-22, -25, 0, -25);
+    ctx.quadraticCurveTo(22, -25, 45, 15);
+    ctx.quadraticCurveTo(22, 45, 0, 45);
+    ctx.quadraticCurveTo(-22, 45, -45, 15);
+    ctx.fill();
+  };
+
+  const drawToothWithBrackets = (ctx) => {
+    // Dibujar diente
+    ctx.fillStyle = '#ffffff';
+    ctx.beginPath();
+    ctx.moveTo(-20, 30);
+    ctx.quadraticCurveTo(-20, -30, 0, -30);
+    ctx.quadraticCurveTo(20, -30, 20, 30);
+    ctx.quadraticCurveTo(0, 40, -20, 30);
+    ctx.fill();
+
+    // Dibujar brackets
+    ctx.fillStyle = '#808080';
+    ctx.fillRect(-15, -5, 30, 10);
+    ctx.fillStyle = '#c0c0c0';
+    for (let i = -10; i <= 10; i += 10) {
+      ctx.fillRect(i, -5, 5, 10);
+    }
+  };
+
+  const drawToothWithImplant = (ctx) => {
+    // Dibujar diente
+    ctx.fillStyle = '#ffffff';
+    ctx.beginPath();
+    ctx.moveTo(-20, 30);
+    ctx.quadraticCurveTo(-20, -30, 0, -30);
+    ctx.quadraticCurveTo(20, -30, 20, 30);
+    ctx.quadraticCurveTo(0, 40, -20, 30);
+    ctx.fill();
+
+    // Dibujar implante
+    ctx.fillStyle = '#808080';
+    ctx.beginPath();
+    ctx.moveTo(-5, 30);
+    ctx.lineTo(5, 30);
+    ctx.lineTo(3, -20);
+    ctx.lineTo(-3, -20);
+    ctx.closePath();
+    ctx.fill();
+  };
+
+  const drawToothWithEndodontics = (ctx) => {
+    // Dibujar diente
+    ctx.fillStyle = '#ffffff';
+    ctx.beginPath();
+    ctx.moveTo(-20, 30);
+    ctx.quadraticCurveTo(-20, -30, 0, -30);
+    ctx.quadraticCurveTo(20, -30, 20, 30);
+    ctx.quadraticCurveTo(0, 40, -20, 30);
+    ctx.fill();
+
+    // Dibujar relleno endodóntico
+    ctx.fillStyle = '#a0522d';
+    ctx.beginPath();
+    ctx.moveTo(-5, 30);
+    ctx.quadraticCurveTo(-5, -20, 0, -20);
+    ctx.quadraticCurveTo(5, -20, 5, 30);
+    ctx.quadraticCurveTo(0, 35, -5, 30);
+    ctx.fill();
   };
 
   const handleConfigChange = (key, value) => {
@@ -161,12 +274,9 @@ const Home = () => {
                             <SelectValue placeholder="Selecciona un material" />
                           </SelectTrigger>
                           <SelectContent>
-                            {Object.entries(materialConfigs).map(([key, { icon: Icon }]) => (
+                            {Object.entries(materialConfigs).map(([key, { config }]) => (
                               <SelectItem key={key} value={key}>
-                                <div className="flex items-center">
-                                  <Icon className="w-8 h-8 mr-2" />
-                                  <span>{key.replace('_', ' ').charAt(0).toUpperCase() + key.replace('_', ' ').slice(1)}</span>
-                                </div>
+                                <span>{key.replace('_', ' ').charAt(0).toUpperCase() + key.replace('_', ' ').slice(1)}</span>
                               </SelectItem>
                             ))}
                           </SelectContent>
@@ -188,10 +298,10 @@ const Home = () => {
                           <Slider
                             value={[value]}
                             onValueChange={(newValue) => handleConfigChange(key, newValue[0])}
-                            max={key === 'time' ? 1 : 100}
-                            step={key === 'time' ? 0.1 : 1}
+                            max={key === 'tiempo' ? 1 : 100}
+                            step={key === 'tiempo' ? 0.1 : 1}
                           />
-                          <span className="text-sm text-gray-500">{value.toFixed(key === 'time' ? 1 : 0)}</span>
+                          <span className="text-sm text-gray-500">{value.toFixed(key === 'tiempo' ? 1 : 0)}</span>
                         </div>
                       ))}
                     </div>
