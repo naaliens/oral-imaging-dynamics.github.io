@@ -1,26 +1,26 @@
 export const materialConfigs = {
   hueso_tejido: {
-    config: { energia: 70, angulo: 5, grosor: 8, voltaje: 65, corriente: 7, tiempo: 0.1 },
+    config: { energia: 60, angulo: 10, grosor: 10, voltaje: 65, corriente: 7, tiempo: 0.12 },
     description: "Equilibra la visualización del hueso y tejido, mostrando ambos con claridad sin exceso de radiación."
   },
   hueso_solo: {
-    config: { energia: 100, angulo: 0, grosor: 10, voltaje: 70, corriente: 10, tiempo: 0.1 },
+    config: { energia: 55, angulo: 8, grosor: 5, voltaje: 60, corriente: 6, tiempo: 0.1 },
     description: "Optimiza la absorción del hueso y minimiza la dispersión, maximizando el contraste."
   },
   tejido_blando: {
-    config: { energia: 60, angulo: 10, grosor: 5, voltaje: 60, corriente: 5, tiempo: 0.08 },
+    config: { energia: 50, angulo: 5, grosor: 3, voltaje: 55, corriente: 5, tiempo: 0.08 },
     description: "Ajusta la visualización para mayor claridad en tejidos suaves sin saturar la imagen."
   },
   dientes_brackets: {
-    config: { energia: 85, angulo: 15, grosor: 7, voltaje: 75, corriente: 12, tiempo: 0.15 },
+    config: { energia: 70, angulo: 12, grosor: 15, voltaje: 70, corriente: 9, tiempo: 0.15 },
     description: "Refleja los efectos del metal sin comprometer la imagen del diente."
   },
   dientes_implantes: {
-    config: { energia: 95, angulo: 20, grosor: 8, voltaje: 80, corriente: 15, tiempo: 0.2 },
+    config: { energia: 75, angulo: 10, grosor: 18, voltaje: 70, corriente: 10, tiempo: 0.2 },
     description: "Configura la visualización para capturar los detalles del implante sin excesiva dispersión."
   },
   dientes_endodoncia: {
-    config: { energia: 90, angulo: 10, grosor: 6, voltaje: 70, corriente: 9, tiempo: 0.1 },
+    config: { energia: 65, angulo: 8, grosor: 12, voltaje: 65, corriente: 8, tiempo: 0.12 },
     description: "Resalta los materiales de relleno internos sin perder detalle de las estructuras adyacentes."
   }
 };
@@ -55,7 +55,6 @@ export const drawMaterialIcon = (ctx, material, x, y, radius) => {
 };
 
 const drawMaxilarWithTissue = (ctx) => {
-  // Dibujar hueso
   ctx.fillStyle = '#d3d3d3';
   ctx.beginPath();
   ctx.moveTo(-40, 20);
@@ -65,7 +64,6 @@ const drawMaxilarWithTissue = (ctx) => {
   ctx.quadraticCurveTo(-20, 40, -40, 20);
   ctx.fill();
 
-  // Dibujar tejido blando
   ctx.fillStyle = 'rgba(255, 192, 203, 0.7)';
   ctx.beginPath();
   ctx.moveTo(-45, 15);
@@ -86,7 +84,6 @@ const drawBoneOnly = (ctx) => {
   ctx.quadraticCurveTo(-20, 40, -40, 20);
   ctx.fill();
 
-  // Añadir textura
   for (let i = 0; i < 50; i++) {
     ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
     ctx.beginPath();
@@ -107,7 +104,6 @@ const drawSoftTissue = (ctx) => {
 };
 
 const drawToothWithBrackets = (ctx) => {
-  // Dibujar diente
   ctx.fillStyle = '#ffffff';
   ctx.beginPath();
   ctx.moveTo(-20, 30);
@@ -116,7 +112,6 @@ const drawToothWithBrackets = (ctx) => {
   ctx.quadraticCurveTo(0, 40, -20, 30);
   ctx.fill();
 
-  // Dibujar brackets
   ctx.fillStyle = '#808080';
   ctx.fillRect(-15, -5, 30, 10);
   ctx.fillStyle = '#c0c0c0';
@@ -126,7 +121,6 @@ const drawToothWithBrackets = (ctx) => {
 };
 
 const drawToothWithImplant = (ctx) => {
-  // Dibujar diente
   ctx.fillStyle = '#ffffff';
   ctx.beginPath();
   ctx.moveTo(-20, 30);
@@ -135,7 +129,6 @@ const drawToothWithImplant = (ctx) => {
   ctx.quadraticCurveTo(0, 40, -20, 30);
   ctx.fill();
 
-  // Dibujar implante
   ctx.fillStyle = '#808080';
   ctx.beginPath();
   ctx.moveTo(-5, 30);
@@ -147,7 +140,6 @@ const drawToothWithImplant = (ctx) => {
 };
 
 const drawToothWithEndodontics = (ctx) => {
-  // Dibujar diente
   ctx.fillStyle = '#ffffff';
   ctx.beginPath();
   ctx.moveTo(-20, 30);
@@ -156,7 +148,6 @@ const drawToothWithEndodontics = (ctx) => {
   ctx.quadraticCurveTo(0, 40, -20, 30);
   ctx.fill();
 
-  // Dibujar relleno endodóntico
   ctx.fillStyle = '#a0522d';
   ctx.beginPath();
   ctx.moveTo(-5, 30);

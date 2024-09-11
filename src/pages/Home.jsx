@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Switch } from "@/components/ui/switch";
 import { materialConfigs, drawMaterialIcon, applyRadiographyEffect } from '../utils/radiographyUtils';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer } from 'recharts';
 
 const Home = () => {
   const [material, setMaterial] = useState('hueso_tejido');
@@ -46,10 +47,11 @@ const Home = () => {
 
   const checkOptimalConfig = (key, value) => {
     const optimalValue = materialConfigs[material].config[key];
-    if (value !== optimalValue) {
+    const tolerance = key === 'tiempo' ? 0.02 : 2;
+    if (Math.abs(value - optimalValue) > tolerance) {
       setFeedback(prev => ({
         ...prev,
-        [key]: `El valor óptimo es ${optimalValue}. El valor actual puede afectar la calidad de la imagen.`
+        [key]: `El valor óptimo es ${optimalValue}. Ajuste para mejorar la calidad de la imagen.`
       }));
     } else {
       setFeedback(prev => ({ ...prev, [key]: '' }));
@@ -64,6 +66,11 @@ const Home = () => {
   const toggleRadiography = () => {
     setIsRadiography(!isRadiography);
   };
+
+  const exposureData = [
+    { name: 'Actual', exposicion: config.corriente * config.tiempo },
+    { name: 'Óptimo', exposicion: materialConfigs[material].config.corriente * materialConfigs[material].config.tiempo }
+  ];
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -125,9 +132,9 @@ const Home = () => {
                             value={[value]}
                             onValueChange={(newValue) => handleConfigChange(key, newValue[0])}
                             max={key === 'tiempo' ? 1 : 100}
-                            step={key === 'tiempo' ? 0.1 : 1}
+                            step={key === 'tiempo' ? 0.01 : 1}
                           />
-                          <span className="text-sm text-gray-500">{value.toFixed(key === 'tiempo' ? 1 : 0)}</span>
+                          <span className="text-sm text-gray-500">{value.toFixed(key === 'tiempo' ? 2 : 0)}</span>
                           {feedback[key] && <p className="text-xs text-red-500 mt-1">{feedback[key]}</p>}
                         </div>
                       ))}
@@ -151,6 +158,18 @@ const Home = () => {
                           La calidad de la radiografía puede no ser óptima. Ajusta los parámetros según las recomendaciones.
                         </p>
                       )}
+                    </div>
+                    <div className="mt-4">
+                      <h4 className="text-md font-semibold mb-2">Gráfico de Exposición</h4>
+                      <ResponsiveContainer width="100%" height={200}>
+                        <LineChart data={exposureData}>
+                          <CartesianGrid strokeDasharray="3 3" />
+                          <XAxis dataKey="name" />
+                          <YAxis />
+                          <RechartsTooltip />
+                          <Line type="monotone" dataKey="exposicion" stroke="#8884d8" />
+                        </LineChart>
+                      </ResponsiveContainer>
                     </div>
                   </div>
                 </div>
