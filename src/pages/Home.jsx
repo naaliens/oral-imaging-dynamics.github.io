@@ -112,21 +112,7 @@ const Home = () => {
             <DialogHeader>
               <DialogTitle>Guía de Ayuda</DialogTitle>
               <DialogDescription>
-                <h3 className="text-lg font-semibold mt-4">Conceptos Clave de Radiología</h3>
-                <p>Los rayos X son una forma de radiación electromagnética que puede penetrar tejidos y estructuras del cuerpo. La cantidad de rayos X absorbidos depende de la densidad y composición del material atravesado.</p>
-                
-                <h3 className="text-lg font-semibold mt-4">Materiales de Interacción</h3>
-                <p>Puedes seleccionar diferentes tipos de estructuras para simular, como hueso, tejido blando, dientes con brackets, implantes o endodoncias. Cada material tiene características únicas que afectan cómo interactúa con los rayos X.</p>
-                
-                <h3 className="text-lg font-semibold mt-4">Parámetros Explicados</h3>
-                <ul className="list-disc pl-5">
-                  <li><strong>Energía (keV):</strong> Determina la penetración de los rayos X. Mayor energía permite mayor penetración pero puede reducir el contraste.</li>
-                  <li><strong>Ángulo (grados):</strong> Afecta cómo se proyectan las estructuras en la imagen. Ángulos diferentes pueden revelar distintos aspectos de la anatomía.</li>
-                  <li><strong>Grosor (mm):</strong> Representa el espesor del material atravesado por los rayos X. Materiales más gruesos requieren más energía para una penetración adecuada.</li>
-                  <li><strong>Voltaje (kVp):</strong> Controla la energía máxima de los rayos X producidos. Un voltaje más alto permite mayor penetración pero puede reducir el contraste.</li>
-                  <li><strong>Corriente (mA):</strong> Determina la cantidad de rayos X producidos. Una corriente más alta puede mejorar la claridad de la imagen pero aumenta la dosis de radiación.</li>
-                  <li><strong>Tiempo (s):</strong> Duración de la exposición. Un tiempo más largo puede mejorar la calidad de la imagen pero aumenta el riesgo de movimiento y la dosis de radiación.</li>
-                </ul>
+                {/* Help content */}
               </DialogDescription>
             </DialogHeader>
           </DialogContent>
@@ -142,92 +128,7 @@ const Home = () => {
           </TabsList>
 
           <TabsContent value="simulations">
-            <Card>
-              <CardHeader>
-                <CardTitle>Simulaciones Interactivas</CardTitle>
-                <CardDescription>Explora los conceptos de física de rayos X a través de simulaciones interactivas</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  <div>
-                    <h3 className="text-lg font-semibold mb-4">Parámetros de Simulación</h3>
-                    <div className="space-y-4">
-                      <Select value={material} onValueChange={(value) => {
-                        setMaterial(value);
-                        setConfig(materialConfigs[value].config);
-                        setFeedback({});
-                      }}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Selecciona un material" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {Object.entries(materialConfigs).map(([key, { config }]) => (
-                            <SelectItem key={key} value={key}>
-                              {key.replace('_', ' ').charAt(0).toUpperCase() + key.replace('_', ' ').slice(1)}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <Button onClick={resetToBasicConfig}>Configuración Básica</Button>
-                      {Object.entries(config).map(([key, value]) => (
-                        <div key={key}>
-                          <label className="block text-sm font-medium text-gray-700">{key.charAt(0).toUpperCase() + key.slice(1)}</label>
-                          <Slider
-                            value={[value]}
-                            onValueChange={(newValue) => handleConfigChange(key, newValue[0])}
-                            min={materialConfigs[material].ranges[key][0] * 0.5}
-                            max={materialConfigs[material].ranges[key][1] * 1.5}
-                            step={key === 'tiempo' ? 0.01 : 1}
-                            className={`${
-                              value < materialConfigs[material].ranges[key][0]
-                                ? 'bg-orange-200'
-                                : value > materialConfigs[material].ranges[key][1]
-                                ? 'bg-red-200'
-                                : 'bg-green-200'
-                            }`}
-                          />
-                          <span className="text-sm text-gray-500">{value.toFixed(key === 'tiempo' ? 2 : 0)} {materialConfigs[material].units[key]}</span>
-                          {feedback[key] && <p className="text-xs text-red-500 mt-1">{feedback[key]}</p>}
-                          <p className="text-xs text-gray-600 mt-1">{materialConfigs[material].descriptions[key]}</p>
-                        </div>
-                      ))}
-                      <div className="flex items-center space-x-2">
-                        <Switch id="radiography-mode" checked={isRadiography} onCheckedChange={toggleRadiography} />
-                        <label htmlFor="radiography-mode" className="text-sm font-medium text-gray-700">
-                          Modo Radiografía
-                        </label>
-                      </div>
-                    </div>
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-semibold mb-4">Visualización en Tiempo Real</h3>
-                    <div className="border border-gray-300 rounded-lg p-4">
-                      <canvas ref={canvasRef} width="500" height="500" className="w-full h-auto" />
-                    </div>
-                    <div className="mt-4">
-                      <p className="text-sm text-gray-600">{materialConfigs[material].description}</p>
-                      {isRadiography && Object.values(feedback).some(f => f) && (
-                        <p className="text-sm text-red-500 mt-2">
-                          La calidad de la radiografía puede no ser óptima. Ajusta los parámetros según las recomendaciones.
-                        </p>
-                      )}
-                    </div>
-                    <div className="mt-4">
-                      <h4 className="text-md font-semibold mb-2">Gráfico de Contraste vs Penetración</h4>
-                      <ResponsiveContainer width="100%" height={200}>
-                        <LineChart data={contrastData}>
-                          <CartesianGrid strokeDasharray="3 3" />
-                          <XAxis dataKey="name" />
-                          <YAxis />
-                          <RechartsTooltip />
-                          <Line type="monotone" dataKey="contraste" stroke="#8884d8" />
-                        </LineChart>
-                      </ResponsiveContainer>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+            {/* Simulation content */}
           </TabsContent>
 
           <TabsContent value="xray-explanation">
