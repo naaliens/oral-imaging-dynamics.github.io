@@ -25,6 +25,14 @@ export const materialConfigs = {
       voltaje: "Suficiente para penetrar el hueso sin sobreexponer el tejido blando.",
       corriente: "Balanceada para obtener una imagen clara sin exceso de radiación.",
       tiempo: "Corto para evitar movimiento del paciente, pero suficiente para una buena exposición."
+    },
+    descriptions: {
+      energia: "La energía afecta la penetración de los rayos X. Valores más altos penetran más pero pueden reducir el contraste.",
+      angulo: "El ángulo influye en la proyección de las estructuras. Ajústalo para visualizar mejor ciertas áreas.",
+      grosor: "Representa el espesor del material. A mayor grosor, se necesita más energía para una penetración adecuada.",
+      voltaje: "Controla la energía máxima de los rayos X. Un voltaje más alto permite mayor penetración pero puede reducir el contraste.",
+      corriente: "Determina la cantidad de rayos X producidos. Más corriente puede mejorar la claridad pero aumenta la radiación.",
+      tiempo: "Duración de la exposición. Un tiempo más largo puede mejorar la calidad pero aumenta el riesgo de movimiento."
     }
   },
   hueso_solo: {
@@ -53,6 +61,14 @@ export const materialConfigs = {
       voltaje: "Ajustado para penetrar el hueso sin exceso, mejorando el detalle.",
       corriente: "Reducida para evitar sobreexposición, manteniendo buena calidad de imagen.",
       tiempo: "Corto para minimizar la dosis de radiación y el movimiento del paciente."
+    },
+    descriptions: {
+      energia: "Para hueso solo, una energía más baja proporciona mejor contraste. Ajusta con cuidado para no sobreexponer.",
+      angulo: "Un ángulo menor ayuda a reducir la distorsión en la proyección del hueso. Experimenta para encontrar el ángulo óptimo.",
+      grosor: "Representa el grosor del hueso. Ajusta según el área específica que estés examinando.",
+      voltaje: "El voltaje está optimizado para penetrar el hueso. Aumenta si necesitas más detalle en áreas densas.",
+      corriente: "Una corriente más baja evita la sobreexposición del hueso. Ajusta si la imagen parece demasiado clara o oscura.",
+      tiempo: "Tiempo corto para minimizar la exposición. Aumenta ligeramente si necesitas más detalle, pero con precaución."
     }
   },
   tejido_blando: {
@@ -81,6 +97,14 @@ export const materialConfigs = {
       voltaje: "Bajo para asegurar buen contraste en tejidos de baja densidad.",
       corriente: "Reducida para evitar sobreexposición en estructuras sensibles.",
       tiempo: "Muy corto para prevenir borrosidad por movimiento en tejidos blandos."
+    },
+    descriptions: {
+      energia: "Energía baja para tejidos blandos. Aumenta gradualmente si necesitas ver estructuras más profundas.",
+      angulo: "Un ángulo pequeño minimiza la distorsión. Ajusta según la región específica que estés examinando.",
+      grosor: "Representa el grosor del tejido blando. Ajusta basándote en el área específica de interés.",
+      voltaje: "Voltaje bajo para buen contraste en tejidos blandos. Aumenta con precaución si necesitas más penetración.",
+      corriente: "Corriente baja para evitar sobreexposición. Ajusta si la imagen parece demasiado clara o oscura.",
+      tiempo: "Tiempo muy corto para prevenir borrosidad. Aumenta mínimamente si necesitas más detalle, pero con cuidado."
     }
   },
   dientes_brackets: {
@@ -109,6 +133,14 @@ export const materialConfigs = {
       voltaje: "Elevado para asegurar penetración a través de los materiales densos.",
       corriente: "Aumentada para compensar la absorción por los brackets metálicos.",
       tiempo: "Ligeramente mayor para asegurar suficiente exposición sin artefactos."
+    },
+    descriptions: {
+      energia: "Energía alta para penetrar brackets. Ajusta cuidadosamente para balancear la visualización de metal y diente.",
+      angulo: "Ángulo mayor para compensar distorsión por brackets. Experimenta para encontrar el mejor ángulo de visualización.",
+      grosor: "Considera el grosor combinado de dientes y brackets. Ajusta según el caso específico.",
+      voltaje: "Voltaje alto para penetrar metal. Aumenta si los brackets oscurecen detalles importantes del diente.",
+      corriente: "Corriente aumentada para compensar la absorción del metal. Ajusta para claridad sin sobreexposición.",
+      tiempo: "Tiempo ligeramente mayor. Aumenta con precaución si necesitas más detalle, evitando movimiento del paciente."
     }
   },
   dientes_implantes: {
@@ -137,6 +169,14 @@ export const materialConfigs = {
       voltaje: "Alto para asegurar penetración adecuada del implante y tejidos circundantes.",
       corriente: "Elevada para compensar la alta absorción del implante metálico.",
       tiempo: "Mayor para asegurar suficiente exposición sin comprometer la calidad."
+    },
+    descriptions: {
+      energia: "Energía muy alta para penetrar implantes. Ajusta para balancear la visualización del implante y estructuras circundantes.",
+      angulo: "Ángulo moderado para minimizar artefactos. Experimenta para encontrar el mejor ángulo que muestre el implante claramente.",
+      grosor: "Considera el grosor del implante y estructuras adyacentes. Ajusta según las especificaciones del implante.",
+      voltaje: "Voltaje alto para penetrar el implante. Aumenta si necesitas más detalle de las estructuras circundantes.",
+      corriente: "Corriente elevada para compensar la absorción del implante. Ajusta para obtener una imagen clara sin sobreexposición.",
+      tiempo: "Tiempo mayor para asegurar suficiente exposición. Aumenta con precaución si necesitas más detalle del implante."
     }
   },
   dientes_endodoncia: {
@@ -165,6 +205,14 @@ export const materialConfigs = {
       voltaje: "Balanceado para penetrar el diente y el material de relleno sin perder detalle.",
       corriente: "Moderada para obtener buen contraste entre el relleno y la dentina.",
       tiempo: "Suficiente para capturar detalles finos sin sobreexposición."
+    },
+    descriptions: {
+      energia: "Energía intermedia para visualizar material de relleno y estructura dental. Ajusta para balancear ambos aspectos.",
+      angulo: "Ángulo pequeño para ver canales claramente. Experimenta para encontrar el mejor ángulo que muestre los detalles endodónticos.",
+      grosor: "Considera el grosor del diente tratado. Ajusta según el tamaño del diente y la extensión del tratamiento.",
+      voltaje: "Voltaje balanceado para penetrar relleno y diente. Aumenta ligeramente si necesitas más detalle de los canales.",
+      corriente: "Corriente moderada para buen contraste. Ajusta para diferenciar claramente entre relleno y estructura dental.",
+      tiempo: "Tiempo suficiente para detalles finos. Aumenta con precaución si necesitas ver mejor los canales o materiales de relleno."
     }
   }
 };
@@ -228,7 +276,9 @@ const drawBoneOnly = (ctx) => {
   ctx.quadraticCurveTo(-20, 40, -40, 20);
   ctx.fill();
 
-  for (let i = 0; i < 50; i++) {
+  for (let i = 0;
+
+ i < 50; i++) {
     ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
     ctx.beginPath();
     ctx.arc(Math.random() * 80 - 40, Math.random() * 60 - 20, 1, 0, 2 * Math.PI);

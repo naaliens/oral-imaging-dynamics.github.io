@@ -6,8 +6,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Switch } from "@/components/ui/switch";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { materialConfigs, drawMaterialIcon, applyRadiographyEffect } from '../utils/radiographyUtils';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer } from 'recharts';
+import { HelpCircle } from 'lucide-react';
 
 const Home = () => {
   const [material, setMaterial] = useState('hueso_tejido');
@@ -15,6 +17,7 @@ const Home = () => {
   const [isRadiography, setIsRadiography] = useState(false);
   const [feedback, setFeedback] = useState({});
   const canvasRef = useRef(null);
+  const [showHelp, setShowHelp] = useState(false);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -72,17 +75,57 @@ const Home = () => {
     setIsRadiography(!isRadiography);
   };
 
-  const exposureData = [
-    { name: 'Actual', exposicion: config.corriente * config.tiempo },
-    { name: 'Óptimo', exposicion: materialConfigs[material].config.corriente * materialConfigs[material].config.tiempo }
+  const contrastData = [
+    { name: 'Bajo', contraste: 100 - (config.energia / 2) },
+    { name: 'Medio', contraste: 50 },
+    { name: 'Alto', contraste: config.energia / 2 }
   ];
 
   return (
     <div className="min-h-screen bg-gray-50">
       <main className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
-        <h1 className="text-4xl font-extrabold text-gray-900 sm:text-5xl md:text-6xl mb-8 text-center">
-          Dinámicas de la Imagenología Oral
-        </h1>
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-4xl font-extrabold text-gray-900 sm:text-5xl md:text-6xl">
+            Dinámicas de la Imagenología Oral
+          </h1>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="outline" size="icon" onClick={() => setShowHelp(true)}>
+                  <HelpCircle className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Abrir guía de ayuda</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
+
+        <Dialog open={showHelp} onOpenChange={setShowHelp}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Guía de Ayuda</DialogTitle>
+              <DialogDescription>
+                <h3 className="text-lg font-semibold mt-4">Conceptos Clave de Radiología</h3>
+                <p>Los rayos X son una forma de radiación electromagnética que puede penetrar tejidos y estructuras del cuerpo. La cantidad de rayos X absorbidos depende de la densidad y composición del material atravesado.</p>
+                
+                <h3 className="text-lg font-semibold mt-4">Materiales de Interacción</h3>
+                <p>Puedes seleccionar diferentes tipos de estructuras para simular, como hueso, tejido blando, dientes con brackets, implantes o endodoncias. Cada material tiene características únicas que afectan cómo interactúa con los rayos X.</p>
+                
+                <h3 className="text-lg font-semibold mt-4">Parámetros Explicados</h3>
+                <ul className="list-disc pl-5">
+                  <li><strong>Energía (keV):</strong> Determina la penetración de los rayos X. Mayor energía permite mayor penetración pero puede reducir el contraste.</li>
+                  <li><strong>Ángulo (grados):</strong> Afecta cómo se proyectan las estructuras en la imagen. Ángulos diferentes pueden revelar distintos aspectos de la anatomía.</li>
+                  <li><strong>Grosor (mm):</strong> Representa el espesor del material atravesado por los rayos X. Materiales más gruesos requieren más energía para una penetración adecuada.</li>
+                  <li><strong>Voltaje (kVp):</strong> Controla la energía máxima de los rayos X producidos. Un voltaje más alto permite mayor penetración pero puede reducir el contraste.</li>
+                  <li><strong>Corriente (mA):</strong> Determina la cantidad de rayos X producidos. Una corriente más alta puede mejorar la claridad de la imagen pero aumenta la dosis de radiación.</li>
+                  <li><strong>Tiempo (s):</strong> Duración de la exposición. Un tiempo más largo puede mejorar la calidad de la imagen pero aumenta el riesgo de movimiento y la dosis de radiación.</li>
+                </ul>
+              </DialogDescription>
+            </DialogHeader>
+          </DialogContent>
+        </Dialog>
 
         <Tabs defaultValue="simulations" className="w-full mb-12">
           <TabsList className="grid w-full grid-cols-2">
@@ -136,12 +179,20 @@ const Home = () => {
                           <Slider
                             value={[value]}
                             onValueChange={(newValue) => handleConfigChange(key, newValue[0])}
-                            min={materialConfigs[material].ranges[key][0] * 0.8}
-                            max={materialConfigs[material].ranges[key][1] * 1.2}
+                            min={materialConfigs[material].ranges[key][0] * 0.5}
+                            max={materialConfigs[material].ranges[key][1] * 1.5}
                             step={key === 'tiempo' ? 0.01 : 1}
+                            className={`${
+                              value < materialConfigs[material].ranges[key][0]
+                                ? 'bg-orange-200'
+                                : value > materialConfigs[material].ranges[key][1]
+                                ? 'bg-red-200'
+                                : 'bg-green-200'
+                            }`}
                           />
                           <span className="text-sm text-gray-500">{value.toFixed(key === 'tiempo' ? 2 : 0)} {materialConfigs[material].units[key]}</span>
                           {feedback[key] && <p className="text-xs text-red-500 mt-1">{feedback[key]}</p>}
+                          <p className="text-xs text-gray-600 mt-1">{materialConfigs[material].descriptions[key]}</p>
                         </div>
                       ))}
                       <div className="flex items-center space-x-2">
@@ -166,14 +217,14 @@ const Home = () => {
                       )}
                     </div>
                     <div className="mt-4">
-                      <h4 className="text-md font-semibold mb-2">Gráfico de Exposición</h4>
+                      <h4 className="text-md font-semibold mb-2">Gráfico de Contraste vs Penetración</h4>
                       <ResponsiveContainer width="100%" height={200}>
-                        <LineChart data={exposureData}>
+                        <LineChart data={contrastData}>
                           <CartesianGrid strokeDasharray="3 3" />
                           <XAxis dataKey="name" />
                           <YAxis />
                           <RechartsTooltip />
-                          <Line type="monotone" dataKey="exposicion" stroke="#8884d8" />
+                          <Line type="monotone" dataKey="contraste" stroke="#8884d8" />
                         </LineChart>
                       </ResponsiveContainer>
                     </div>
