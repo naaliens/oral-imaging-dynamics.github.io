@@ -10,6 +10,10 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { materialConfigs, drawMaterialIcon, applyRadiographyEffect } from '../utils/radiographyUtils';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer } from 'recharts';
 import { HelpCircle } from 'lucide-react';
+import AtomSimulation from '../components/AtomSimulation';
+import XRayMachineInteractive from '../components/XRayMachineInteractive';
+import ClinicalApplications from '../components/ClinicalApplications';
+import QuizEvaluation from '../components/QuizEvaluation';
 
 const Home = () => {
   const [material, setMaterial] = useState('hueso_tejido');
@@ -18,6 +22,7 @@ const Home = () => {
   const [feedback, setFeedback] = useState({});
   const canvasRef = useRef(null);
   const [showHelp, setShowHelp] = useState(false);
+  const [activeTab, setActiveTab] = useState('simulations');
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -127,10 +132,13 @@ const Home = () => {
           </DialogContent>
         </Dialog>
 
-        <Tabs defaultValue="simulations" className="w-full mb-12">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="simulations">Simulaciones Interactivas</TabsTrigger>
-            <TabsTrigger value="bibliography">Bibliografía</TabsTrigger>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full mb-12">
+          <TabsList className="grid w-full grid-cols-5">
+            <TabsTrigger value="simulations">Simulaciones</TabsTrigger>
+            <TabsTrigger value="xray-explanation">Rayos X</TabsTrigger>
+            <TabsTrigger value="atom-structure">Estructura Atómica</TabsTrigger>
+            <TabsTrigger value="clinical-applications">Aplicaciones Clínicas</TabsTrigger>
+            <TabsTrigger value="quiz">Evaluación</TabsTrigger>
           </TabsList>
 
           <TabsContent value="simulations">
@@ -144,35 +152,23 @@ const Home = () => {
                   <div>
                     <h3 className="text-lg font-semibold mb-4">Parámetros de Simulación</h3>
                     <div className="space-y-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700">Material de interacción</label>
-                        <Select value={material} onValueChange={(value) => {
-                          setMaterial(value);
-                          setConfig(materialConfigs[value].config);
-                          setFeedback({});
-                        }}>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Selecciona un material" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {Object.entries(materialConfigs).map(([key, { config }]) => (
-                              <SelectItem key={key} value={key}>
-                                <span>{key.replace('_', ' ').charAt(0).toUpperCase() + key.replace('_', ' ').slice(1)}</span>
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Button onClick={resetToBasicConfig}>Configuración Básica</Button>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>Restaura las configuraciones óptimas recomendadas para la mejor visualización.</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
+                      <Select value={material} onValueChange={(value) => {
+                        setMaterial(value);
+                        setConfig(materialConfigs[value].config);
+                        setFeedback({});
+                      }}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecciona un material" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {Object.entries(materialConfigs).map(([key, { config }]) => (
+                            <SelectItem key={key} value={key}>
+                              {key.replace('_', ' ').charAt(0).toUpperCase() + key.replace('_', ' ').slice(1)}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <Button onClick={resetToBasicConfig}>Configuración Básica</Button>
                       {Object.entries(config).map(([key, value]) => (
                         <div key={key}>
                           <label className="block text-sm font-medium text-gray-700">{key.charAt(0).toUpperCase() + key.slice(1)}</label>
@@ -234,22 +230,42 @@ const Home = () => {
             </Card>
           </TabsContent>
 
-          <TabsContent value="bibliography">
+          <TabsContent value="xray-explanation">
             <Card>
               <CardHeader>
-                <CardTitle>Bibliografía</CardTitle>
-                <CardDescription>Referencias y recursos adicionales</CardDescription>
+                <CardTitle>¿Qué son los Rayos X?</CardTitle>
+                <CardDescription>Basado en "Oral Radiology: Principles and Interpretation" de White y Pharoah</CardDescription>
               </CardHeader>
               <CardContent>
-                <ul className="list-disc pl-5 space-y-2">
-                  <li>White, S. C., & Pharoah, M. J. (2014). <i>Oral Radiology: Principles and Interpretation</i> (8th ed.). Elsevier.</li>
-                  <li>Bushberg, J. T., et al. (2011). <i>The Essential Physics of Medical Imaging</i> (3rd ed.). Lippincott Williams & Wilkins.</li>
-                  <li>Iannucci, J. M., & Howerton, L. J. (2016). <i>Dental Radiography: Principles and Techniques</i> (5th ed.). Elsevier.</li>
-                </ul>
+                <p>Los rayos X son una forma de radiación electromagnética ionizante que tiene la capacidad de atravesar tejidos blandos del cuerpo, pero es absorbida por estructuras densas como los huesos. Esto permite la creación de imágenes detalladas que son fundamentales en el diagnóstico médico y odontológico.</p>
+                <p>En odontología, los rayos X permiten a los dentistas visualizar problemas en los dientes, huesos maxilares y otros tejidos que no son visibles a simple vista.</p>
               </CardContent>
             </Card>
           </TabsContent>
+
+          <TabsContent value="atom-structure">
+            <Card>
+              <CardHeader>
+                <CardTitle>Estructura del Átomo</CardTitle>
+                <CardDescription>Exploración interactiva de la estructura atómica</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p>El átomo está compuesto por un núcleo que contiene protones con carga positiva y neutrones sin carga. Alrededor del núcleo se encuentran los electrones, que son partículas con carga negativa y están ligadas al núcleo por fuerzas electrostáticas.</p>
+                <AtomSimulation />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="clinical-applications">
+            <ClinicalApplications />
+          </TabsContent>
+
+          <TabsContent value="quiz">
+            <QuizEvaluation />
+          </TabsContent>
         </Tabs>
+
+        <XRayMachineInteractive />
       </main>
     </div>
   );
