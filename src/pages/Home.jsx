@@ -48,10 +48,16 @@ const Home = () => {
   const checkOptimalConfig = (key, value) => {
     const optimalValue = materialConfigs[material].config[key];
     const tolerance = key === 'tiempo' ? 0.02 : 2;
-    if (Math.abs(value - optimalValue) > tolerance) {
+    const range = materialConfigs[material].ranges[key];
+    if (value < range[0] || value > range[1]) {
       setFeedback(prev => ({
         ...prev,
-        [key]: `El valor óptimo es ${optimalValue}. Ajuste para mejorar la calidad de la imagen.`
+        [key]: `Fuera del rango óptimo (${range[0]}-${range[1]}). ${materialConfigs[material].fundamentos[key]}`
+      }));
+    } else if (Math.abs(value - optimalValue) > tolerance) {
+      setFeedback(prev => ({
+        ...prev,
+        [key]: `El valor óptimo es ${optimalValue}. ${materialConfigs[material].fundamentos[key]}`
       }));
     } else {
       setFeedback(prev => ({ ...prev, [key]: '' }));
@@ -131,10 +137,11 @@ const Home = () => {
                           <Slider
                             value={[value]}
                             onValueChange={(newValue) => handleConfigChange(key, newValue[0])}
-                            max={key === 'tiempo' ? 1 : 100}
+                            min={materialConfigs[material].ranges[key][0]}
+                            max={materialConfigs[material].ranges[key][1]}
                             step={key === 'tiempo' ? 0.01 : 1}
                           />
-                          <span className="text-sm text-gray-500">{value.toFixed(key === 'tiempo' ? 2 : 0)}</span>
+                          <span className="text-sm text-gray-500">{value.toFixed(key === 'tiempo' ? 2 : 0)} {materialConfigs[material].units[key]}</span>
                           {feedback[key] && <p className="text-xs text-red-500 mt-1">{feedback[key]}</p>}
                         </div>
                       ))}
