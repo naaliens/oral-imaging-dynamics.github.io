@@ -112,7 +112,8 @@ const Home = () => {
             <DialogHeader>
               <DialogTitle>Guía de Ayuda</DialogTitle>
               <DialogDescription>
-                {/* Help content */}
+                Esta aplicación te permite explorar los conceptos fundamentales de la imagenología oral.
+                Utiliza las diferentes pestañas para navegar por las secciones y experimentar con las simulaciones interactivas.
               </DialogDescription>
             </DialogHeader>
           </DialogContent>
@@ -128,7 +129,56 @@ const Home = () => {
           </TabsList>
 
           <TabsContent value="simulations">
-            {/* Simulation content */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Simulación de Radiografía</CardTitle>
+                <CardDescription>Ajusta los parámetros para ver cómo afectan la imagen radiográfica</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <div>
+                    <canvas ref={canvasRef} width={400} height={400} className="border rounded-lg" />
+                    <div className="mt-4 flex items-center justify-between">
+                      <span>Mostrar radiografía</span>
+                      <Switch checked={isRadiography} onCheckedChange={toggleRadiography} />
+                    </div>
+                  </div>
+                  <div>
+                    <Select value={material} onValueChange={setMaterial}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecciona un material" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {Object.keys(materialConfigs).map((key) => (
+                          <SelectItem key={key} value={key}>
+                            {materialConfigs[key].description}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {Object.keys(config).map((key) => (
+                      <div key={key} className="mt-4">
+                        <label className="block text-sm font-medium text-gray-700">{key}</label>
+                        <Slider
+                          value={[config[key]]}
+                          onValueChange={(value) => handleConfigChange(key, value[0])}
+                          min={materialConfigs[material].ranges[key][0]}
+                          max={materialConfigs[material].ranges[key][1]}
+                          step={(materialConfigs[material].ranges[key][1] - materialConfigs[material].ranges[key][0]) / 100}
+                          className="mt-1"
+                        />
+                        <div className="flex justify-between text-sm text-gray-500">
+                          <span>{config[key].toFixed(2)}</span>
+                          <span>{materialConfigs[material].units[key]}</span>
+                        </div>
+                        {feedback[key] && <p className="mt-1 text-sm text-red-500">{feedback[key]}</p>}
+                      </div>
+                    ))}
+                    <Button onClick={resetToBasicConfig} className="mt-4">Restablecer Configuración</Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </TabsContent>
 
           <TabsContent value="xray-explanation">
@@ -138,8 +188,9 @@ const Home = () => {
                 <CardDescription>Basado en "Oral Radiology: Principles and Interpretation" de White y Pharoah</CardDescription>
               </CardHeader>
               <CardContent>
-                <p>Los rayos X son una forma de radiación electromagnética ionizante que tiene la capacidad de atravesar tejidos blandos del cuerpo, pero es absorbida por estructuras densas como los huesos. Esto permite la creación de imágenes detalladas que son fundamentales en el diagnóstico médico y odontológico.</p>
+                <p className="mb-4">Los rayos X son una forma de radiación electromagnética ionizante que tiene la capacidad de atravesar tejidos blandos del cuerpo, pero es absorbida por estructuras densas como los huesos. Esto permite la creación de imágenes detalladas que son fundamentales en el diagnóstico médico y odontológico.</p>
                 <p>En odontología, los rayos X permiten a los dentistas visualizar problemas en los dientes, huesos maxilares y otros tejidos que no son visibles a simple vista.</p>
+                <XRayMachineInteractive />
               </CardContent>
             </Card>
           </TabsContent>
@@ -151,7 +202,7 @@ const Home = () => {
                 <CardDescription>Exploración interactiva de la estructura atómica</CardDescription>
               </CardHeader>
               <CardContent>
-                <p>El átomo está compuesto por un núcleo que contiene protones con carga positiva y neutrones sin carga. Alrededor del núcleo se encuentran los electrones, que son partículas con carga negativa y están ligadas al núcleo por fuerzas electrostáticas.</p>
+                <p className="mb-4">El átomo está compuesto por un núcleo que contiene protones con carga positiva y neutrones sin carga. Alrededor del núcleo se encuentran los electrones, que son partículas con carga negativa y están ligadas al núcleo por fuerzas electrostáticas.</p>
                 <AtomSimulation />
               </CardContent>
             </Card>
@@ -165,8 +216,6 @@ const Home = () => {
             <QuizEvaluation />
           </TabsContent>
         </Tabs>
-
-        <XRayMachineInteractive />
       </main>
     </div>
   );
